@@ -46,5 +46,27 @@
                 </h2>
             </a>
         </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const isGithubPages =
+                    window.location.host === "dima-369.github.io";
+                const aElements = document.querySelectorAll("a");
+                const pathPrefix = "/lego-builder-web";
+
+                aElements.forEach((a) => {
+                    let originalHref = a.getAttribute("href");
+
+                    if (
+                        isGithubPages &&
+                        originalHref &&
+                        originalHref.startsWith("/instructions.html")
+                    ) {
+                        // Prepend the pathPrefix only if it's on GitHub Pages and targets instructions.html
+                        a.href = pathPrefix + originalHref;
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
