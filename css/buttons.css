@@ -18,8 +18,7 @@
     /* use same offset as prev/next buttons */
     bottom: 3%;
     height: var(--button-size);
-    /* do not set 100% as scrollbars appear on smaller screen size */
-    width: 95%;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -42,11 +41,11 @@
         top: 3%;
         left: 6%;
         justify-content: flex-start;
+        width: fit-content;
     }
 
     #progress_bar_container {
-        width: 85vw !important;
-        max-width: calc(100vw - var(--button-size) - 90px)
+        max-width: calc(max(100vw, 100vh) - (2 * var(--button-size)));
     }
 }
 

@@ -790,15 +790,19 @@ LDR.InstructionsManager.prototype.updateViewPort = function (overwriteSize) {
   let dy = this.topButtonsHeight; // Now 0
 
   if (!overwriteSize && !this.showPLI) {
-    // No move
+    // No move logic for PLI, but we still apply bottom offset below
   } else if (this.fillHeight()) {
     dx += overwriteSize ? overwriteSize[0] : this.pliW;
   } else {
     dy += overwriteSize ? overwriteSize[1] : this.pliH;
   }
 
+  // Shift the model up by ~12% of the viewport height to clear the bottom progress bar.
+  // Positive Y offset in setViewOffset moves the view window down -> Model moves Up.
+  let modelLift = H * 0.06;
+
   this.camera.clearViewOffset();
-  this.camera.setViewOffset(W, H, -dx / 2, -dy / 2, W, H);
+  this.camera.setViewOffset(W, H, -dx / 2, (-dy / 2) + modelLift, W, H);
   this.camera.updateProjectionMatrix();
   this.controls.update();
 };

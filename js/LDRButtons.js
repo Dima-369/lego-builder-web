@@ -10,7 +10,9 @@ LDR.Buttons = function (actions, element, options) {
     this.closeButton.setAttribute("class", "ui_control");
     const closeImg = document.createElement("img");
     closeImg.src = "img/x.svg";
+    closeImg.style.pointerEvents = "none";
     this.closeButton.appendChild(closeImg);
+    this.closeButton.addEventListener("contextmenu", (e) => e.preventDefault());
     element.appendChild(this.closeButton);
   }
 
@@ -19,8 +21,15 @@ LDR.Buttons = function (actions, element, options) {
   this.resetCameraButton = this.createDiv("reset_camera_button", null);
   const resetCameraImg = document.createElement("img");
   resetCameraImg.src = "img/refresh-cw.svg";
+  // Prevent long-press on image triggering download popup
+  resetCameraImg.style.pointerEvents = "none";
   this.resetCameraButton.appendChild(resetCameraImg);
   element.appendChild(this.resetCameraButton);
+
+  // Prevent context menu on the button itself
+  this.resetCameraButton.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+  });
 
   // Long press logic for Fullscreen on Reset Camera Button
   let pressTimer;
@@ -66,6 +75,7 @@ LDR.Buttons = function (actions, element, options) {
 
   // 3. Progress Bar (Center)
   this.progressBar = this.createDiv("progress_bar_container");
+  this.progressBar.addEventListener("contextmenu", (e) => e.preventDefault());
 
   // Progress Bar Background
   this.progressBg = this.createDiv("progress_bar_background");
@@ -79,6 +89,7 @@ LDR.Buttons = function (actions, element, options) {
   this.progressDot = this.createDiv("progress_dot");
   const progressDotImg = document.createElement("img");
   progressDotImg.src = "img/brand-lego.svg";
+  progressDotImg.style.pointerEvents = "none";
   this.progressDot.appendChild(progressDotImg);
   this.progressBar.appendChild(this.progressDot);
 
@@ -137,7 +148,9 @@ LDR.Buttons = function (actions, element, options) {
     this.backButton.setAttribute("class", "ui_control");
     const image = document.createElement("img");
     image.setAttribute("src", "img/chevron-left.svg");
+    image.style.pointerEvents = "none";
     this.backButton.appendChild(image);
+    this.backButton.addEventListener("contextmenu", (e) => e.preventDefault());
     element.appendChild(this.backButton);
   }
 
@@ -147,7 +160,9 @@ LDR.Buttons = function (actions, element, options) {
     this.nextButton.setAttribute("class", "ui_control");
     const image = document.createElement("img");
     image.setAttribute("src", "img/chevron-right.svg");
+    image.style.pointerEvents = "none";
     this.nextButton.appendChild(image);
+    this.nextButton.addEventListener("contextmenu", (e) => e.preventDefault());
     element.appendChild(this.nextButton);
   }
 };
