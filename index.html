@@ -27,7 +27,7 @@
             export class SimpleGreeting extends LitElement {
                 static properties = {
                     imgSrc: { type: String },
-                    href: { type: String }, // Raw href passed in HTML
+                    model: { type: String },
                     title: { type: String },
                 };
 
@@ -45,15 +45,11 @@
                     const isGithubPages =
                         window.location.host === "dima-369.github.io";
                     const pathPrefix = "/lego-builder-web";
-
-                    if (
-                        isGithubPages &&
-                        this.href &&
-                        this.href.startsWith("/instructions.html")
-                    ) {
-                        return pathPrefix + this.href;
+                    const prefix = "/instructions.html?model=";
+                    if (isGithubPages) {
+                        return pathPrefix + prefix + this.model;
                     }
-                    return this.href;
+                    return prefix + this.model;
                 }
 
                 render() {
@@ -79,19 +75,54 @@
     <body class="p-6 bg-gray-100">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <lego-build
-                href="/instructions.html?model=30477"
+                model="30477"
                 title="Chamäleon (30477)"
                 imgSrc="img/sets/30477.jpg"
             ></lego-build>
             <lego-build
-                href="/instructions.html?model=30477-alt-dragster"
+                model="30477-alt-dragster"
                 title="Dragster (30477)"
                 imgSrc="img/sets/30477-alt-dragster.png"
             ></lego-build>
             <lego-build
-                href="/instructions.html?model=31109"
+                model="31109"
                 title="Piratenschiff (31109)"
                 imgSrc="img/sets/31109.jpg"
+            ></lego-build>
+            <lego-build
+                model="42133-1-teleskoplader"
+                title="Telekopter (42133)"
+                imgSrc="img/sets/42133-1-teleskoplader.png"
+            ></lego-build>
+            <lego-build
+                model="42133-2-abschleppwagen"
+                title="Abschleppwagen (42133)"
+                imgSrc="img/sets/42133-2-abschleppwagen.png"
+            ></lego-build>
+            <lego-build
+                model="42147-1-kipplaster"
+                title="Kipplaster (42147)"
+                imgSrc="img/sets/42147-1-kipplaster.png"
+            ></lego-build>
+            <lego-build
+                model="42147-2-greifbagger"
+                title="Greifbagger (42147)"
+                imgSrc="img/sets/42147-2-greifbagger.png"
+            ></lego-build>
+            <lego-build
+                model="42163-schwerlast-bulldozer"
+                title="Bulldozer (42163)"
+                imgSrc="img/sets/42163-schwerlast-bulldozer.png"
+            ></lego-build>
+            <lego-build
+                model="60461"
+                title="Roter Traktor (60461)"
+                imgSrc="img/sets/60461-roter-traktor-mit-anhaenger.png"
+            ></lego-build>
+            <lego-build
+                model="60287-roter-traktor"
+                title="Roter Traktor (60287)"
+                imgSrc="img/sets/60287-roter-traktor.png"
             ></lego-build>
         </div>
     </body>

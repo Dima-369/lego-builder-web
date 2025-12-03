@@ -3,60 +3,66 @@
 LDR.Buttons = function (actions, element, options) {
   // 1. Close Button (Top Right)
   if (actions.closeInstructions) {
-    // Pass null for onclick to handle manually for long-press support
-    this.closeButton = this.createDiv("close_button", null);
+    this.closeButton = this.createDiv(
+      "close_button",
+      actions.closeInstructions,
+    );
     this.closeButton.setAttribute("class", "ui_control");
     const closeImg = document.createElement("img");
     closeImg.src = "img/x.svg";
     this.closeButton.appendChild(closeImg);
     element.appendChild(this.closeButton);
-
-    // Long press logic for Fullscreen
-    let pressTimer;
-    let longPressed = false;
-    let semaphore = false; // Prevent double firing on touch devices
-
-    const startPress = () => {
-      longPressed = false;
-      pressTimer = setTimeout(() => {
-        longPressed = true;
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch((e) => console.warn(e));
-        } else {
-          document.exitFullscreen();
-        }
-      }, 3000);
-    };
-
-    const cancelPress = () => clearTimeout(pressTimer);
-
-    this.closeButton.addEventListener("mousedown", startPress);
-    this.closeButton.addEventListener("touchstart", startPress, { passive: true });
-    this.closeButton.addEventListener("mouseleave", cancelPress);
-    this.closeButton.addEventListener("touchmove", cancelPress);
-
-    this.closeButton.addEventListener("mouseup", () => {
-      cancelPress();
-      if (!semaphore && !longPressed) actions.closeInstructions();
-      semaphore = false;
-    });
-
-    this.closeButton.addEventListener("touchend", () => {
-      cancelPress();
-      semaphore = true;
-      if (!longPressed) actions.closeInstructions();
-    });
   }
 
   // 2. Reset Camera Button (Top Right)
-  this.resetCameraButton = this.createDiv(
-    "reset_camera_button",
-    actions.resetCameraPosition,
-  );
+  // Pass null for onclick to handle manually for long-press support
+  this.resetCameraButton = this.createDiv("reset_camera_button", null);
   const resetCameraImg = document.createElement("img");
   resetCameraImg.src = "img/refresh-cw.svg";
   this.resetCameraButton.appendChild(resetCameraImg);
   element.appendChild(this.resetCameraButton);
+
+  // Long press logic for Fullscreen on Reset Camera Button
+  let pressTimer;
+  let longPressed = false;
+  let semaphore = false; // Prevent double firing on touch devices
+
+  const startPress = () => {
+    longPressed = false;
+    pressTimer = setTimeout(() => {
+      longPressed = true;
+      if (!document.fullscreenElement) {
+        document.documentElement
+          .requestFullscreen()
+          .catch((e) => console.warn(e));
+      } else {
+        document.exitFullscreen();
+      }
+    }, 800); // ms
+  };
+
+  const cancelPress = () => clearTimeout(pressTimer);
+
+  this.resetCameraButton.addEventListener("mousedown", startPress);
+  this.resetCameraButton.addEventListener("touchstart", startPress, {
+    passive: true,
+  });
+  this.resetCameraButton.addEventListener("mouseleave", cancelPress);
+  this.resetCameraButton.addEventListener("touchmove", cancelPress);
+
+  this.resetCameraButton.addEventListener("mouseup", () => {
+    cancelPress();
+    if (!semaphore && !longPressed && actions.resetCameraPosition)
+      actions.resetCameraPosition();
+    semaphore = false;
+  });
+
+  this.resetCameraButton.addEventListener("touchend", () => {
+    cancelPress();
+    semaphore = true;
+    if (!longPressed && actions.resetCameraPosition)
+      actions.resetCameraPosition();
+  });
 
   // 3. Progress Bar (Center)
   this.progressBar = this.createDiv("progress_bar_container");
@@ -109,7 +115,9 @@ LDR.Buttons = function (actions, element, options) {
   };
 
   this.progressBar.addEventListener("mousedown", onPointerDown);
-  this.progressBar.addEventListener("touchstart", onPointerDown, { passive: false });
+  this.progressBar.addEventListener("touchstart", onPointerDown, {
+    passive: false,
+  });
 
   window.addEventListener("mousemove", onPointerMove);
   window.addEventListener("touchmove", onPointerMove, { passive: false });
