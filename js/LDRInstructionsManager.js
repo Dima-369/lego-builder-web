@@ -507,14 +507,21 @@ LDR.InstructionsManager.prototype.onWindowResize = function (force, instant) {
 
   let [w, h] = LDR.getScreenSize();
   h -= this.adPeek;
-  if (force || this.canvas.width !== w || this.canvas.height !== h) {
+
+  // Calculate physical buffer size to match renderer
+  var pixelRatio = this.renderer.getPixelRatio();
+  let wRes = Math.floor(w * pixelRatio);
+  let hRes = Math.floor(h * pixelRatio);
+
+  // Check against physical size to prevent unnecessary resizing
+  if (force || this.canvas.width !== wRes || this.canvas.height !== hRes) {
     this.renderer.setSize(w, h, true);
     this.composer = new THREE.EffectComposer(this.renderer);
     this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
     let any = false;
     if (LDR.Options && LDR.Options.showOldColors <= 1) {
       any = true;
-      this.buildOutlinePass(w, h);
+      this.buildOutlinePass(wRes, hRes); // Use physical resolution
       this.composer.addPass(this.outlinePass);
     } else {
       this.outlinePass = null;
@@ -522,7 +529,6 @@ LDR.InstructionsManager.prototype.onWindowResize = function (force, instant) {
 
     // FXAA Pass to restore antialiazing:
     var fxaaPass = new THREE.ShaderPass(new THREE.FXAAShader());
-    var pixelRatio = this.renderer.getPixelRatio();
     var uniforms = fxaaPass.material.uniforms;
     uniforms["resolution"].value.x = 1 / (window.innerWidth * pixelRatio);
     uniforms["resolution"].value.y = 1 / (window.innerHeight * pixelRatio);
@@ -536,8 +542,8 @@ LDR.InstructionsManager.prototype.onWindowResize = function (force, instant) {
       if (
         LDR.attachGlowPassesForObjects(
           map,
-          w,
-          h,
+          wRes, // Use physical resolution
+          hRes, // Use physical resolution
           this.scene,
           this.camera,
           this.composer,
