@@ -1,0 +1,286 @@
+:root {
+    --button-size: calc(max(12vh, 12vw));
+}
+
+.top_button,
+#next_button_large,
+#zoom_in_button,
+#zoom_out_button,
+#zoom_in_button_large,
+#zoom_out_button_large,
+#done_button {
+    position: relative;
+    cursor: pointer;
+}
+
+#progress-bar-wrapper {
+    position: absolute;
+    /* use same offset as prev/next buttons */
+    bottom: 3%;
+    height: var(--button-size);
+    width: 100%;
+    text-align: center;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#next_button,
+#prev_button,
+#done_button {
+    user-select: none;
+    position: absolute;
+    cursor: pointer;
+    background-color: #fff;
+    border-radius: 20px;
+    bottom: 0;
+    width: var(--button-size);
+    height: var(--button-size);
+    z-index: 10;
+    box-shadow: 0 4px 2px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#close_button {
+    user-select: none;
+    position: absolute;
+    cursor: pointer;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    width: var(--button-size);
+    height: var(--button-size);
+    z-index: 10;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 65%;
+        height: 65%;
+    }
+    
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+}
+
+#prev_button {
+    left: 3%;
+    bottom: 3%;
+}
+
+#close_button {
+    top: 3%;
+    right: 3%;
+}
+
+#next_button:hover,
+#prev_button:hover,
+#done_button:hover,
+#reset_camera_button:hover {
+    background-color: #ddd;
+}
+
+#prev_button img,
+#next_button img,
+#done_button img {
+    width: 80%;
+    height: 80%;
+}
+
+#next_button,
+#done_button {
+    right: 3%;
+    bottom: 3%;
+}
+
+.show-parts {
+    #reset_camera_button {
+        display: none;
+    }
+}
+
+#reset_camera_button {
+    position: absolute;
+    background-color: #fff;
+    width: var(--button-size);
+    height: var(--button-size);
+    z-index: 10;
+    cursor: pointer;
+    top: 37%;
+    right: 3%;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+        width: 50%;
+        height: 50%;
+    }
+}
+
+/* Remove Zoom Buttons */
+#zoom_in_button,
+#zoom_out_button,
+#zoom_in_button_large,
+#zoom_out_button_large {
+    display: none !important;
+}
+
+/* UI Elements moved from Top to Bottom Center */
+#stepToContainer,
+#numberOfSteps {
+    display: none;
+}
+
+#progress_bar_container {
+    position: relative;
+    width: 60vw;
+    max-width: 800px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+}
+
+#progress_bar_background {
+    position: absolute;
+    top: 50%;
+    left: -1vw;
+    transform: translate(0, -50%);
+    width: calc(100% + 2vw);
+    height: 5vw;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 30px;
+    z-index: 0;
+}
+
+#progress_line {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    /* use vw for even sizing to previous and next buttons which also use vw */
+    height: 4vh;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#progress_dot {
+    position: absolute;
+    z-index: 2;
+    width: 6vw;
+    height: 6vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* yellow400 */
+    background-color: #fdc700;
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    left: 0%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    transition: left 0.1s ease-out;
+    pointer-events: none; /* Let clicks pass through to container */
+
+    img {
+        width: 90%;
+        height: 90%;
+    }
+}
+
+/* Hide Top Buttons Container */
+#top_buttons {
+    display: none;
+}
+
+/* Edit/Options buttons if they exist, move to bottom center */
+#editButton,
+#optionsButton {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+#to_top {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: black;
+    opacity: 0.7;
+    border-radius: 10px;
+}
+#to_top svg {
+    width: 10vw;
+    height: 10vw;
+    stroke: white;
+    opacity: 1;
+}
+#to_top svg polygon,
+.options_footer svg polygon {
+    stroke-width: 4;
+}
+#editButton svg,
+#optionsButton svg {
+    stroke-width: 1;
+    fill: none;
+    width: 100%;
+    height: 100%;
+}
+
+/* SVG Styling */
+svg {
+    position: relative;
+    pointer-events: none;
+}
+svg:hover {
+    opacity: 1;
+}
+
+/*
+ Only for preview:
+ */
+#preview_border {
+    position: relative;
+    top: 0;
+    background-color: white;
+}
+#preview_border #prev_button,
+#preview_parent #prev_button {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    visibility: hidden;
+}
+.preview svg {
+    display: block;
+    width: 100%;
+}
+
+line,
+polygon,
+rect,
+polyline,
+path,
+circle,
+ellipse {
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+#rotator path {
+    stroke-width: 6;
+}

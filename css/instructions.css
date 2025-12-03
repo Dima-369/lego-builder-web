@@ -1,0 +1,235 @@
+body {
+    margin: 0;
+    padding: 0;
+    /* Old background */
+    /* background-color: #FFF; */
+
+    /* blue gradient, sky600 to sky200 */
+    background: linear-gradient(to bottom, #0084d1 0%, #b8e6fe 100%);
+    background-attachment: fixed; /* Keeps gradient in place while scrolling */
+    min-height: 100vh;
+}
+
+#main_canvas {
+    background: transparent;
+    /* something sets explicit pixel values, I have not figured out where, so !important is used */
+    height: 100vh !important;
+    width: 100vw !important;
+}
+#main_canvas_holder,
+#main_canvas {
+    display: block;
+    top: 0;
+}
+
+/* Preview */
+.preview,
+.input_frame {
+    display: table-cell;
+    border: 2px solid black;
+    padding: 0.5em;
+}
+
+/* Color picker */
+.color_container {
+    display: inline-block;
+    text-align: center;
+    line-height: 2em;
+    font-weight: bold;
+    border: none;
+    padding: 0.1em;
+    cursor: pointer;
+}
+.color_ele {
+    display: block;
+    width: 2em;
+    height: 2em;
+    border-radius: 2em;
+}
+
+.show-parts {
+    #parts-threejs-canvas {
+        display: block !important;
+    }
+}
+
+#parts-threejs-canvas {
+    position: fixed;
+    display: none !important;
+    top: 0;
+    z-index: 5;
+}
+
+/*
+  Decorations:
+*/
+#instructions_decorations {
+    position: absolute;
+    left: 0;
+    top: 100px;
+}
+
+#pli {
+    display: none;
+    border: 2px solid black;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 2px;
+}
+
+#pli_container {
+    display: none !important;
+    /* sky400 */
+    background-color: #00bcff !important;
+    cursor: pointer;
+    /* for showParts=true */
+    height: 100vh !important;
+    width: 100vw !important;
+}
+
+#pli_interactive_canvas {
+    /* for showParts=true */
+    display: block;
+}
+
+.decoration_holder,
+#instructions_decorations {
+    user-select: none;
+}
+
+#empty_step {
+    display: none;
+    border: 2px dotted black;
+    margin-left: 2px;
+    padding: 4px;
+    color: black;
+    text-align: center;
+}
+.decoration_holder {
+    display: inline;
+}
+#multiplier,
+#rotator {
+    vertical-align: top;
+    display: inline;
+    visibility: hidden;
+    font-family: sans-serif;
+    font-weight: bold;
+    color: black;
+    margin-left: 4px;
+}
+#rotator svg {
+    vertical-align: top;
+    width: 10vw;
+    height: 10vw;
+}
+
+/*
+ Renderer for PLI
+ */
+#pli_render_canvas {
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: none;
+}
+
+/*
+  Preview:
+*/
+#generated {
+    display: none;
+}
+
+/*
+  Editor:
+ */
+#editor {
+    margin-left: 0.5em;
+    padding-top: 0.3em;
+}
+.editor_control {
+    display: inline;
+    text-align: center;
+}
+.editor_radio_button {
+    display: none;
+}
+.editor_radio_button + .editor_radio_label {
+    display: inline-block;
+    background-color: #ddd;
+    margin-right: 1vw;
+    cursor: pointer;
+}
+.editor_radio_button:checked + .editor_radio_label {
+    background-color: #aaa;
+}
+.editor_input {
+    width: 6vw;
+    text-align: center;
+    font-size: 3vw;
+    border: none;
+    position: relative;
+    top: -0.1em;
+}
+.editor_button,
+.pli_button {
+    border: none;
+    margin: 0;
+    padding: 0 1.1vw;
+    background-color: #ddd;
+    cursor: pointer;
+}
+.save_button {
+    margin-right: 1vw;
+    margin-top: 0em;
+    background-color: #444;
+    border: 0.3vw solid #222;
+    font-size: 2.5vw;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    top: -0.2em;
+}
+.editor_radio_label svg {
+    width: 9vw;
+    height: 3vw;
+    fill: #f66;
+    stroke-width: 1;
+    stroke: black;
+}
+.editor_button svg,
+.pli_button svg {
+    width: 3vw;
+    height: 3vw;
+    fill: #f66;
+    stroke-width: 1;
+    stroke: black;
+}
+
+.show-parts {
+    .object-label {
+        display: block;
+    }
+}
+
+.object-label {
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Oxygen-Sans,
+        Ubuntu,
+        Cantarell,
+        "Helvetica Neue",
+        sans-serif;
+    font-size: 44px;
+    user-select: none;
+    color: black;
+    position: absolute;
+    z-index: 1000;
+    display: none;
+}

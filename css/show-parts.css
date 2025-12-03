@@ -1,0 +1,14 @@
+/* CSS rules that apply when in "show parts" mode */
+body.show-parts {
+  /* Example: Change background color when showing parts */
+  background-color: #f5f5f5;
+}
+
+/* You can add more specific styles that should apply when showing parts */
+body.show-parts #main_canvas_holder {
+  /* Example: Adjust main canvas holder when in parts view */
+}
+
+body.show-parts #instructions_decorations {
+  /* Example: Adjust decorations when in parts view */
+}
