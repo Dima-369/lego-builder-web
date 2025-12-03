@@ -58,6 +58,7 @@ body {
     display: none !important;
     top: 0;
     z-index: 5;
+    touch-action: none;
 }
 
 /*

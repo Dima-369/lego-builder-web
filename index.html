@@ -3,6 +3,7 @@
         <title>Lego Set Auswahl</title>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src=" https://cdn.jsdelivr.net/npm/lit@3.3.1/polyfill-support.min.js "></script>
         <link rel="icon" type="image/x-icon" href="img/favicon.ico" />
         <link
             rel="icon"
@@ -15,58 +16,83 @@
             content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
         />
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    </head>
-    <body class="p-6 bg-gray-100">
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <a
-                class="border border-gray-300 rounded-lg p-4 bg-white"
-                href="/instructions.html?model=30477"
-            >
-                <img src="img/sets/30477.jpg" />
-                <h2 class="mt-2 text-center text-xl text-wrap break-all">
-                    Chamäleon (30477)
-                </h2>
-            </a>
-            <a
-                class="border border-gray-300 rounded-lg p-4 bg-white"
-                href="/instructions.html?model=30477-alt-dragster"
-            >
-                <img src="img/sets/30477-alt-dragster.png" />
-                <h2 class="mt-2 text-center text-xl text-wrap break-all">
-                    Dragster (30477)
-                </h2>
-            </a>
-            <a
-                class="border border-gray-300 rounded-lg p-4 bg-white"
-                href="/instructions.html?model=31109"
-            >
-                <img src="img/sets/31109.jpg" />
-                <h2 class="mt-2 text-center text-xl text-wrap break-all">
-                    Piratenschiff (31109)
-                </h2>
-            </a>
-        </div>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const isGithubPages =
-                    window.location.host === "dima-369.github.io";
-                const aElements = document.querySelectorAll("a");
-                const pathPrefix = "/lego-builder-web";
+        <script type="module">
+            import {
+                html,
+                css,
+                LitElement,
+            } from "https://cdn.jsdelivr.net/npm/lit@3.3.1/+esm";
 
-                aElements.forEach((a) => {
-                    let originalHref = a.getAttribute("href");
+            export class SimpleGreeting extends LitElement {
+                static properties = {
+                    imgSrc: { type: String },
+                    href: { type: String }, // Raw href passed in HTML
+                    title: { type: String },
+                };
+
+                createRenderRoot() {
+                    return this;
+                }
+
+                connectedCallback() {
+                    super.connectedCallback();
+                    // make the host invisible to Grid
+                    this.classList.add("contents");
+                }
+
+                get finalHref() {
+                    const isGithubPages =
+                        window.location.host === "dima-369.github.io";
+                    const pathPrefix = "/lego-builder-web";
 
                     if (
                         isGithubPages &&
-                        originalHref &&
-                        originalHref.startsWith("/instructions.html")
+                        this.href &&
+                        this.href.startsWith("/instructions.html")
                     ) {
-                        // Prepend the pathPrefix only if it's on GitHub Pages and targets instructions.html
-                        a.href = pathPrefix + originalHref;
+                        return pathPrefix + this.href;
                     }
-                });
-            });
+                    return this.href;
+                }
+
+                render() {
+                    return html`
+                        <a
+                            class="border border-gray-300 rounded-lg p-4 bg-white flex flex-col hover:shadow-lg transition-shadow h-full"
+                            href="${this.finalHref}"
+                        >
+                            <img src="${this.imgSrc}" class="w-full h-auto" />
+                            <h2
+                                class="mt-2 text-center text-xl text-wrap break-all"
+                            >
+                                ${this.title}
+                            </h2>
+                        </a>
+                    `;
+                }
+            }
+            customElements.define("lego-build", SimpleGreeting);
         </script>
+    </head>
+
+    <body class="p-6 bg-gray-100">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <lego-build
+                href="/instructions.html?model=30477"
+                title="Chamäleon (30477)"
+                imgSrc="img/sets/30477.jpg"
+            ></lego-build>
+            <lego-build
+                href="/instructions.html?model=30477-alt-dragster"
+                title="Dragster (30477)"
+                imgSrc="img/sets/30477-alt-dragster.png"
+            ></lego-build>
+            <lego-build
+                href="/instructions.html?model=31109"
+                title="Piratenschiff (31109)"
+                imgSrc="img/sets/31109.jpg"
+            ></lego-build>
+        </div>
     </body>
 </html>

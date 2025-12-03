@@ -726,6 +726,7 @@
 
                 const aspect = window.innerWidth / window.innerHeight;
                 let cols = Math.ceil(Math.sqrt(count * aspect));
+                if (aspect < 0.6) cols = 1; // Force single column on narrow screens
                 cols = Math.max(1, cols);
                 if (cols > count) cols = count;
                 const rows = Math.ceil(count / cols);
@@ -794,10 +795,15 @@
                 }
 
                 // Adjust Camera
+                const fov = camera.fov * (Math.PI / 180);
+                const padding = SPACING * 1.3;
+                const distV = (gridHeight + padding) / (2 * Math.tan(fov / 2));
+                const distH = (gridWidth + padding) / (2 * Math.tan(fov / 2) * aspect);
+
                 camera.position.set(
                     0,
                     0,
-                    Math.max(gridWidth, gridHeight) + 200,
+                    Math.max(distV, distH, 200),
                 );
                 camera.lookAt(0, 0, 0);
             }
