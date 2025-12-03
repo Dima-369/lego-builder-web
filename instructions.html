@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8" />
+        <title>Dima Lego 3D Anleitung</title>
+        <link href="css/instructions.css" rel="stylesheet" type="text/css" />
+        <link href="css/preview.css" rel="stylesheet" type="text/css" />
+        <link href="css/buttons.css" rel="stylesheet" type="text/css" />
+        <link href="css/options.css" rel="stylesheet" type="text/css" />
+        <link href="css/show-parts.css" rel="stylesheet" type="text/css" />
+        <link rel="icon" type="image/x-icon" href="img/favicon.ico" />
+        <link
+            rel="icon"
+            type="image/png"
+            href="img/favicon.png"
+            sizes="32x32"
+        />
+        <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+        />
+        <script src="https://unpkg.com/feather-icons"></script>
+    </head>
+    <body onLoad="main()">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/three.min.js"></script>
+        <script src="js/OrbitControls.js"></script>
+        <script src="js/CopyShader.js"></script>
+        <script src="js/Pass.js"></script>
+        <script src="js/OutlinePass.js"></script>
+        <script src="js/ShaderPass.js"></script>
+        <script src="js/FXAAShader.js"></script>
+        <script src="js/RenderPass.js"></script>
+        <script src="js/MaskPass.js"></script>
+        <script src="js/EffectComposer.js"></script>
+        <script src="js/colors.js"></script>
+        <script src="js/LDRShaders.js"></script>
+        <script src="js/LDRColorMaterials.js"></script>
+        <script src="js/pli.js"></script>
+        <script src="js/LDRSVG.js"></script>
+        <script src="js/LDROptions.js"></script>
+        <script src="js/ClientStorage.js"></script>
+        <script src="js/LDRGeometries.js"></script>
+        <script src="js/LDRLoader.js"></script>
+        <script src="js/LDRStepHandler.js"></script>
+        <script src="js/RectanglePacking.js"></script>
+        <script src="js/LDRPLIBuilder.js"></script>
+        <script src="js/LDRPLIPreview.js"></script>
+        <script src="js/LDRButtons.js"></script>
+        <script src="js/LDRMeasurer.js"></script>
+        <script src="js/LDRColorPicker.js"></script>
+        <script src="js/LDRStepEditor.js"></script>
+        <script src="js/LDRGenerator.js"></script>
+        <script src="js/LDRStuds.js"></script>
+        <script src="js/LDRAssemblies.js"></script>
+        <script src="js/LDRInstructionsManager.js"></script>
+        <script src="js/LDCadGenerator.js"></script>
+
+        <div id="main_canvas_holder">
+            <canvas id="main_canvas"></canvas>
+            <div id="instructions_decorations">
+                <i data-feather="circle"></i>
+                <span id="empty_step">EMPTY STEP</span>
+
+                <!-- We use a container to size the area, and one canvas inside it -->
+                <div
+                    id="pli_container"
+                    style="
+                        position: relative;
+                        border: 2px solid black;
+                        background: white;
+                        display: none;
+                    "
+                >
+                    <canvas
+                        id="pli_interactive_canvas"
+                        style="width: 100%; height: 100%; display: block"
+                    ></canvas>
+                    <div
+                        id="pli_text_overlay"
+                        style="
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            pointer-events: none;
+                        "
+                    ></div>
+                </div>
+
+                <!-- Hide the old canvas completely -->
+                <canvas id="pli" style="display: none"></canvas>
+                <span class="decoration_holder">
+                    <div id="multiplier">x1</div>
+                </span>
+                <span class="decoration_holder">
+                    <div id="rotator">
+                        <svg
+                            viewbox="-52,-52,104,104"
+                            fill="none"
+                            stroke="black"
+                            stroke-width="12"
+                        >
+                            <g id="full_arrow">
+                                <path
+                                    id="half_arrow"
+                                    d="M 25,-14 40,-10 48,-23 M 40,-10 C 30,-50 -30,-50 -40,-10 M 40,-10 Z"
+                                />
+                                <g transform="scale(-1 -1)">
+                                    <use xlink:href="#half_arrow" />
+                                </g>
+                            </g>
+                            <animateTransform
+                                xlink:href="#full_arrow"
+                                attributeName="transform"
+                                attributeType="XML"
+                                id="rotator_animation"
+                                type="rotate"
+                                from="0 0 0"
+                                to="180 0 0"
+                                dur="0.4s"
+                                begin="0"
+                                repeatCount="1"
+                                fill="freeze"
+                            />
+                        </svg>
+                    </div>
+                </span>
+            </div>
+        </div>
+        <div id="pli_preview_section">
+            <div
+                id="preview_background"
+                class="background"
+                onclick="manager.hidePliPreview()"
+            ></div>
+            <div id="preview_holder" class="holder">
+                <div id="preview_parent">
+                    <canvas id="secondary_canvas"></canvas>
+                </div>
+                <div id="preview_info">
+                    <span class="preview_info_line">
+                        <span id="preview_info_name">PART NAME</span>
+                        <a id="preview_info_bh_link" href="" target="_blank"
+                            >Go to part</a
+                        >
+                        or
+                        <a id="preview_info_bl_link" href="" target="_blank"
+                            >See on BrickLink</a
+                        >
+                    </span>
+                    <span class="preview_info_line"
+                        >LDraw color:
+                        <div id="preview_info_color_ldraw">LDR COLOR</div></span
+                    >
+                    <span class="preview_info_line"
+                        >LEGO/LDD color:
+                        <div id="preview_info_color_lego">LDD COLOR</div></span
+                    >
+                    <span class="preview_info_line"
+                        >Bricklink:
+                        <div id="preview_info_id_bricklink">ID</div>
+                        in color
+                        <div id="preview_info_color_bricklink">COLOR</div></span
+                    >
+                </div>
+            </div>
+        </div>
+        <div id="color_picker">
+            <div
+                id="color_picker_background"
+                class="background"
+                onclick="$('#color_picker').hide()"
+            ></div>
+            <div id="color_picker_holder" class="holder"></div>
+        </div>
+        <script>
+            var manager;
+
+            function main() {
+                let urlParams = new URLSearchParams(window.location.search);
+
+                // 1. Determine Model (Default to 30477)
+                let modelID = urlParams.get("model") || "30477";
+                var model = "models/" + modelID + ".ldr";
+
+                // 2. check LocalStorage for previous state
+                let storageKey = "lego_state_" + modelID;
+                let storedState = {};
+                try {
+                    const rawState = localStorage.getItem(storageKey);
+                    if (rawState) {
+                        storedState = JSON.parse(rawState);
+                    }
+                } catch (e) {
+                    console.warn("Could not parse local storage state", e);
+                }
+
+                // 3. Determine Step (URL > Storage > Default 1)
+                let stepParam = urlParams.get("step");
+                let step = 1;
+                if (stepParam) {
+                    step = parseInt(stepParam);
+                } else if (storedState.step) {
+                    step = parseInt(storedState.step);
+                }
+
+                // 4. Determine ShowParts (URL > Storage > Default true)
+                let showPartsParam = urlParams.get("showParts");
+                let showParts = true;
+                if (showPartsParam !== null) {
+                    showParts = showPartsParam === "true";
+                } else if (storedState.showParts !== undefined) {
+                    showParts = storedState.showParts; // stored as boolean
+                }
+
+                // 5. Update URL if params were missing (fill in the blanks)
+                const baseURL = "instructions.html?model=" + modelID + "&step=";
+                if (!stepParam || showPartsParam === null || !urlParams.get("model")) {
+                    let newUrl = baseURL + step + "&showParts=" + showParts;
+                    window.history.replaceState({}, "", newUrl);
+                }
+
+                let options = {
+                    canEdit: false, // Show editor options
+                    buildAssemblies: true, // Assemble parts, such as minifig torsos and legs
+                    key: model,
+                    adPeek: 0, // Show a bar below to contain editor options - set to roughly 120 if canEdit is set to true
+                    showNumberOfSteps: true,
+                    pliMaxWidthPercentage: 60, // The maximum width of the PLI box in percentage of the screen width when the PLI box is shown on the left side.
+                    pliMaxHeightPercentage: 60, // The maximum height of the PLI box in percentage of the screen height when the PLI box is shown on top.
+                    timestamp: "1970-01-01 00:00:00", // Ensure that model can be retrieved from InstancedDB
+                    cleanUpPrimitivesAndSubParts: true,
+                };
+
+                manager = new LDR.InstructionsManager(
+                    model,
+                    modelID,
+                    14,
+                    null,
+                    () => {},
+                    baseURL,
+                    step,
+                    options,
+                    showParts, // Pass the new parameter
+                );
+
+                // --- SCISSOR TEST PLI IMPLEMENTATION ---
+
+                let pliRenderer, pliCanvas, pliContainer, pliTextOverlay;
+                let pliScenes = []; // Array of { scene, camera, element, rect, controls, mesh, isManual }
+
+                // Initialize the single renderer
+                function initPLIRenderer() {
+                    pliContainer = document.getElementById("pli_container");
+                    pliTextOverlay =
+                        document.getElementById("pli_text_overlay");
+                    pliCanvas = document.getElementById(
+                        "pli_interactive_canvas",
+                    );
+
+                    pliRenderer = new THREE.WebGLRenderer({
+                        canvas: pliCanvas,
+                        alpha: true,
+                        antialias: true,
+                    });
+                    pliRenderer.setPixelRatio(window.devicePixelRatio);
+                    pliRenderer.setScissorTest(true); // ENABLE SCISSOR TEST
+
+                    // Input Routing: Determine which virtual scene gets mouse events
+                    function updateControls(event) {
+                        if (!pliScenes.length) return;
+
+                        const rect = pliCanvas.getBoundingClientRect();
+                        // Mouse relative to canvas top-left
+                        const x = event.clientX - rect.left;
+                        const y = event.clientY - rect.top;
+
+                        // Find which scene (if any) is under the pointer
+                        let hoveredScene = null;
+                        for (let i = 0; i < pliScenes.length; i++) {
+                            const s = pliScenes[i];
+                            if (
+                                x >= s.rect.x &&
+                                x < s.rect.x + s.rect.w &&
+                                y >= s.rect.y &&
+                                y < s.rect.y + s.rect.h
+                            ) {
+                                hoveredScene = s;
+                                break;
+                            }
+                        }
+
+                        // If pointer-down (or touchstart) -> mark only the hovered scene manual
+                        if (
+                            event.type === "mousedown" ||
+                            event.type === "touchstart"
+                        ) {
+                            if (hoveredScene) {
+                                hoveredScene.isManual = true;
+                                hoveredScene.controls.enabled = true;
+                            }
+                            // don't touch other scenes' isManual flags here; leave them alone
+                        }
+
+                        // For all scenes, enable controls only when pointer is inside and the scene isn't manual.
+                        pliScenes.forEach((s) => {
+                            if (!s.isManual) {
+                                // enable controls while hovering (so you can hover to grab),
+                                // but do not disable auto-rotation for other scenes
+                                if (s === hoveredScene) {
+                                    s.controls.enabled = true;
+                                } else {
+                                    s.controls.enabled = false;
+                                }
+                            } else {
+                                // manual scenes keep their controls disabled by default,
+                                // they were explicitly enabled when the user started interacting.
+                                s.controls.enabled = false;
+                            }
+                        });
+                    }
+
+                    pliCanvas.addEventListener("mousemove", updateControls);
+                    pliCanvas.addEventListener("mousedown", updateControls);
+                    pliCanvas.addEventListener(
+                        "touchstart",
+                        (e) => {
+                            // Handle touch coordinates
+                            if (e.touches.length > 0) {
+                                e.clientX = e.touches[0].clientX;
+                                e.clientY = e.touches[0].clientY;
+                                updateControls(e);
+                            }
+                        },
+                        { passive: false },
+                    );
+                }
+
+                // Override the update logic
+                manager.updatePLI = function (force) {
+                    if (!pliRenderer) initPLIRenderer();
+
+                    let step = this.stepHandler.getCurrentStep();
+                    let originalPli = document.getElementById("pli");
+                    originalPli.style.display = "none";
+
+                    // 1. Cleanup old virtual scenes
+                    pliScenes.forEach((s) => s.controls.dispose());
+                    pliScenes = [];
+                    if (pliTextOverlay) pliTextOverlay.innerHTML = ""; // Clear text
+
+                    // 2. Prepare Part List
+                    this.pliBuilder.createClickMap(step);
+                    let icons = this.pliBuilder.clickMap;
+
+                    // 3. Layout Calculation (Using RectanglePacking from LDR)
+                    let w, h;
+                    let [screenW, screenH] = LDR.getScreenSize();
+                    let fillHeight = this.fillHeight();
+
+                    // If showing parts page (true), use full screen dimensions
+                    if (this.showParts) {
+                        w = screenW;
+                        h = screenH;
+                        // Force fillHeight logic off for better grid packing on mobile usually,
+                        // or keep dynamic. For full screen parts list, standard width packing usually looks better.
+                        fillHeight = false;
+                    } else if (fillHeight) {
+                        w = this.pliW;
+                        h = screenH - 130 - this.adPeek;
+                    } else {
+                        w = screenW * 0.95;
+                        h = this.pliH;
+                    }
+
+                    // Use standard packing algo to get x, y, dx, dy for every icon
+                    let textHeight =
+                        ((!fillHeight ? h : w) / Math.sqrt(icons.length)) *
+                        0.19;
+                    let [totalW, totalH] = Algorithm.PackPlis(
+                        fillHeight,
+                        w,
+                        h,
+                        icons,
+                        textHeight,
+                    );
+
+                    // Resize the single physical canvas
+                    let finalW = Math.max(totalW, 100);
+                    let finalH = Math.max(totalH, 100);
+
+                    pliRenderer.setSize(finalW, finalH);
+
+                    // 4. Create Virtual Scenes
+                    icons.forEach((icon) => {
+                        // --- Add Text Label ---
+                        if (pliTextOverlay) {
+                            let label = document.createElement("div");
+                            label.style.position = "absolute";
+                            label.style.left = icon.x + "px";
+                            // MULT_Y is the relative Y position for the text line
+                            label.style.top = icon.y + icon.MULT_Y + "px";
+                            label.style.fontSize = textHeight + "px";
+                            label.style.fontFamily = "sans-serif";
+                            label.style.fontWeight = "bold";
+                            label.style.color = "black";
+                            label.style.pointerEvents = "none";
+                            label.innerText = icon.mult + "x";
+                            pliTextOverlay.appendChild(label);
+                        }
+
+                        let scene = new THREE.Scene();
+
+                        // Standard lighting
+                        let ambientLight = new THREE.AmbientLight(
+                            0xffffff,
+                            0.6,
+                        );
+                        scene.add(ambientLight);
+                        let dirLight = new THREE.DirectionalLight(
+                            0xffffff,
+                            0.8,
+                        );
+                        dirLight.position.set(50, 100, 50);
+                        scene.add(dirLight);
+
+                        // Mesh Generation
+                        let pt = this.pliBuilder.getPartType(icon.partID);
+                        let meshGroup = new THREE.Group();
+
+                        // Determine available space for the part
+                        // icon.DX and icon.DY are the cell size.
+                        // icon.MULT_Y is the Y position where text starts.
+                        // We must fit the part into (DX, MULT_Y) to avoid text overlap.
+                        let camW = icon.DX;
+                        let camH = icon.DY;
+                        let usableH = icon.MULT_Y; // Height available above text
+
+                        // Camera setup (use reasonable distance, avoid huge coordinates)
+                        let camera = new THREE.OrthographicCamera(
+                            -camW / 2,
+                            camW / 2,
+                            camH / 2,
+                            -camH / 2,
+                            1,
+                            10000,
+                        );
+                        // place camera at an ordinary distance, looking at origin
+                        camera.position.set(100, 100, 100);
+                        camera.lookAt(0, 0, 0);
+
+                        if (pt) {
+                            let opaque = new THREE.Group();
+                            let sixteen = new THREE.Group();
+                            let trans = new THREE.Group();
+                            meshGroup.add(opaque);
+                            meshGroup.add(sixteen);
+                            meshGroup.add(trans);
+                            let mc = new LDR.MeshCollector(
+                                opaque,
+                                sixteen,
+                                trans,
+                            );
+                            let p = new THREE.Vector3(0, 0, 0);
+                            let r = new THREE.Matrix3();
+                            r.set(1, 0, 0, 0, -1, 0, 0, 0, -1);
+
+                            pt.generateThreePart(
+                                this.ldrLoader,
+                                16,
+                                p,
+                                r,
+                                true,
+                                false,
+                                mc,
+                            );
+                            mc.overwriteColor(icon.c);
+                            mc.draw(false);
+
+                            // 1. Center mesh geometry at (0,0,0)
+                            let box = mc.boundingBox;
+                            let center = new THREE.Vector3();
+                            box.getCenter(center);
+                            meshGroup.position.sub(center);
+                            scene.add(meshGroup);
+
+                            // safe rotation size (bounding diagonal)
+                            let diagonal = box.min.distanceTo(box.max);
+
+                            // compute zoom to fit the diagonal into the usable area
+                            let minDimension = Math.min(camW, usableH);
+                            camera.zoom = (minDimension / diagonal) * 0.75;
+                            camera.updateProjectionMatrix();
+
+                            // Now shift the mesh vertically so it is centered in the top usable area
+                            // Explanation:
+                            // - camera uses a frustum height = camH (world units before zoom).
+                            // - usableH is the height reserved for the part (in the same unit as camH).
+                            // The center of the usable area relative to the cell center is:
+                            //    usableCenterY = camH/2 - usableH/2
+                            // We move the mesh down by that amount so it visually sits in the usable area.
+                            // Divide by camera.zoom because zoom scales projected size.
+                            let usableCenterOffset = camH / 2 - usableH / 2;
+                            meshGroup.position.y -=
+                                usableCenterOffset / camera.zoom;
+
+                            // Additional safety: Clamp zoom to avoid extreme values with very small parts
+                            camera.zoom = Math.max(camera.zoom, 0.05);
+                            camera.zoom = Math.min(camera.zoom, 50);
+                            camera.updateProjectionMatrix();
+                        }
+
+                        // Controls attached to the SHARED canvas
+                        let controls = new THREE.OrbitControls(
+                            camera,
+                            pliCanvas,
+                        );
+                        controls.enablePan = false;
+                        controls.enableZoom = true;
+                        controls.enabled = false; // Disabled by default, enabled on mouseover
+
+                        // store initial camera info so we can convert a user's camera orbit
+                        // into a permanent mesh rotation (this prevents the "snap back" when
+                        // the scene is later re-rendered or auto-rotation runs)
+                        const _initialCamPos = camera.position.clone();
+                        const _initialAzimuth = Math.atan2(
+                            _initialCamPos.x,
+                            _initialCamPos.z,
+                        );
+
+                        let sceneData = {
+                            scene: scene,
+                            camera: camera,
+                            controls: controls,
+                            mesh: meshGroup,
+                            // Layout Rect relative to canvas top-left
+                            rect: {
+                                x: icon.x,
+                                y: icon.y,
+                                w: icon.DX,
+                                h: icon.DY,
+                            },
+                            isManual: false,
+                        };
+
+                        // Stop auto-rotation permanently when user interacts
+                        const stopAutoRotate = () => {
+                            sceneData.isManual = true;
+                        };
+                        controls.addEventListener("start", stopAutoRotate);
+                        controls.addEventListener("change", stopAutoRotate);
+
+                        // When the user finishes an interaction (mouse up / touch end),
+                        // convert the camera orbit into a permanent mesh rotation so the
+                        // visual rotation the user made is preserved and the auto-rotate
+                        // will not "snap back" the part to the automated animation.
+                        controls.addEventListener("end", function () {
+                            try {
+                                // current camera azimuth around Y
+                                const currentAz = Math.atan2(
+                                    camera.position.x,
+                                    camera.position.z,
+                                );
+                                const delta = currentAz - _initialAzimuth;
+
+                                // apply inverse of camera rotation to the mesh so the
+                                // visual orientation remains as the user intended
+                                meshGroup.rotation.y += -delta;
+
+                                // reset camera back to its stored initial position so
+                                // future renders don't re-introduce the camera-based
+                                // rotation. Keep the same radius from origin.
+                                camera.position.copy(_initialCamPos);
+                                camera.lookAt(0, 0, 0);
+                                // If orthographic camera, projection doesn't change, but
+                                // update calls are harmless for perspective as well.
+                                if (camera.updateProjectionMatrix)
+                                    camera.updateProjectionMatrix();
+
+                                // Mark scene as manually controlled so auto-rotation stops
+                                sceneData.isManual = true;
+
+                                // Disable the controls until the pointer moves back over this
+                                // cell (keeps behaviour consistent with mouseover-enable)
+                                controls.enabled = false;
+                            } catch (e) {
+                                // fail-safe: if anything goes wrong, at least stop auto-rotate
+                                sceneData.isManual = true;
+                                controls.enabled = false;
+                            }
+                        });
+
+                        pliScenes.push(sceneData);
+                    });
+
+                    // Make sure the text overlay dimensions match the canvas visual size
+                    // This ensures proper alignment between 3D parts and text labels
+                    pliTextOverlay.style.width =
+                        pliCanvas.style.width || pliCanvas.width + "px";
+                    pliTextOverlay.style.height =
+                        pliCanvas.style.height || pliCanvas.height + "px";
+                };
+
+                // 5. Render Loop
+                function animatePLI() {
+                    requestAnimationFrame(animatePLI);
+
+                    if (!pliRenderer || !pliScenes.length) return;
+
+                    // Clear the whole canvas
+                    pliRenderer.setScissorTest(false);
+                    pliRenderer.clear();
+                    pliRenderer.setScissorTest(true);
+
+                    const canvasHeight = pliCanvas.height; // Physical height
+
+                    pliScenes.forEach((s) => {
+                        // Auto Rotate logic
+                        if (!s.isManual && s.mesh) {
+                            s.mesh.rotation.y += 0.005;
+                        }
+
+                        s.controls.update();
+
+                        // SCISSOR LOGIC:
+                        // ThreeJS scissor coordinates are (x, y, width, height)
+                        // But 'y' starts from the BOTTOM, whereas our layout 'y' starts from TOP.
+                        // Also need to handle devicePixelRatio if PackPlis doesn't account for it in outputs
+                        // (Note: PackPlis usually outputs CSS pixels, Renderer expects Physical pixels)
+
+                        const pixelRatio = window.devicePixelRatio;
+                        const x = s.rect.x * pixelRatio;
+                        const w = s.rect.w * pixelRatio;
+                        const h = s.rect.h * pixelRatio;
+                        // Flip Y axis for WebGL
+                        const y = pliCanvas.height - s.rect.y * pixelRatio - h;
+
+                        pliRenderer.setViewport(x, y, w, h);
+                        pliRenderer.setScissor(x, y, w, h);
+
+                        pliRenderer.render(s.scene, s.camera);
+                    });
+                }
+
+                animatePLI();
+
+                // Initial Trigger
+                manager.onWindowResize();
+            }
+        </script>
+
+        <script>
+            // --- 1. Settings ---
+            // CHANGED: Removed fixed object count, added step tracker
+            let lastRenderedStep = -1;
+            const SPACING = 150; // Increased spacing for Lego coordinates (LDraw units are larger)
+
+            // --- 2. Scene Setup ---
+            const scene = new THREE.Scene();
+            // sky400
+            scene.background = new THREE.Color(0x00bcff);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+            directionalLight.position.set(100, 200, 100);
+            scene.add(directionalLight);
+
+            const camera = new THREE.PerspectiveCamera(
+                45,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                10000, // Increased Far plane for LDraw units
+            );
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.domElement.id = "parts-threejs-canvas";
+            document.body.appendChild(renderer.domElement);
+
+            // --- 4. Object Management ---
+            let interactableObjects = [];
+
+            // CHANGED: Removed static geometries and colors arrays
+
+            function clearScene() {
+                interactableObjects.forEach((obj) => {
+                    scene.remove(obj);
+                    // Standard cleanup
+                    if (obj.labelElement) obj.labelElement.remove();
+                });
+                interactableObjects = [];
+            }
+
+            function createLabel(text) {
+                const div = document.createElement("div");
+                div.className = "object-label";
+                div.textContent = text;
+                document.body.appendChild(div);
+                return div;
+            }
+
+            // CHANGED: Function now checks the Global Manager for parts
+            function layoutObjects() {
+                // Safety check: ensure manager is loaded
+                if (typeof manager === "undefined" || !manager.pliBuilder)
+                    return;
+
+                let stepIndex = manager.stepHandler.getCurrentStep();
+
+                // Only update if step changed
+                if (stepIndex === lastRenderedStep) return;
+                lastRenderedStep = stepIndex;
+
+                clearScene();
+
+                // Generate the click map (parts list) for the current step
+                manager.pliBuilder.createClickMap(stepIndex);
+                let icons = manager.pliBuilder.clickMap;
+                let count = icons.length;
+
+                if (count === 0) return;
+
+                const aspect = window.innerWidth / window.innerHeight;
+                let cols = Math.ceil(Math.sqrt(count * aspect));
+                cols = Math.max(1, cols);
+                if (cols > count) cols = count;
+                const rows = Math.ceil(count / cols);
+
+                const gridWidth = (cols - 1) * SPACING;
+                const gridHeight = (rows - 1) * SPACING;
+
+                for (let i = 0; i < count; i++) {
+                    let icon = icons[i];
+
+                    // LDraw Generation Logic
+                    let pt = manager.ldrLoader.getPartType(icon.partID);
+                    if (!pt) continue;
+
+                    let meshGroup = new THREE.Group();
+                    let opaque = new THREE.Group();
+                    let sixteen = new THREE.Group();
+                    let trans = new THREE.Group();
+                    meshGroup.add(opaque);
+                    meshGroup.add(sixteen);
+                    meshGroup.add(trans);
+
+                    let r = new THREE.Matrix3();
+                    r.set(1, 0, 0, 0, -1, 0, 0, 0, -1);
+
+                    let mc = new LDR.MeshCollector(opaque, sixteen, trans);
+                    // Generate geometry
+                    pt.generateThreePart(
+                        manager.ldrLoader,
+                        16,
+                        new THREE.Vector3(),
+                        r,
+                        true,
+                        false,
+                        mc,
+                    );
+
+                    // Apply Color from step
+                    mc.overwriteColor(icon.c);
+                    mc.draw(false);
+
+                    // Center the geometry locally
+                    let box = new THREE.Box3().setFromObject(meshGroup);
+                    let center = new THREE.Vector3();
+                    box.getCenter(center);
+                    meshGroup.position.sub(center);
+
+                    // Wrap in a parent for grid positioning
+                    let wrapper = new THREE.Group();
+                    wrapper.add(meshGroup);
+
+                    // Grid Position Logic
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    const xPos = col * SPACING - gridWidth / 2;
+                    const yPos = -(row * SPACING) + gridHeight / 2;
+
+                    wrapper.position.set(xPos, yPos, 0);
+                    wrapper.name = icon.name || `Part ${icon.partID}`;
+                    wrapper.isAutoRotating = true;
+
+                    wrapper.labelElement = createLabel(`${icon.mult}x`);
+
+                    scene.add(wrapper);
+                    interactableObjects.push(wrapper);
+                }
+
+                // Adjust Camera
+                camera.position.set(
+                    0,
+                    0,
+                    Math.max(gridWidth, gridHeight) + 200,
+                );
+                camera.lookAt(0, 0, 0);
+            }
+
+            // --- 5. Interaction Logic ---
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            let isDraggingObject = false;
+            let selectedObject = null;
+            let previousMousePosition = { x: 0, y: 0 };
+            // Added check for status div existence
+            const statusDiv =
+                document.getElementById("status") ||
+                document.createElement("div");
+
+            function onPointerDown(event) {
+                // Allow interaction only if clicking on our specific canvas
+                if (event.target !== renderer.domElement) return;
+
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(
+                    interactableObjects,
+                    true,
+                ); // Recursive true for groups
+
+                if (intersects.length > 0) {
+                    isDraggingObject = true;
+                    // Find the wrapper group (top level parent in interactableObjects)
+                    let target = intersects[0].object;
+                    while (
+                        target.parent &&
+                        !interactableObjects.includes(target)
+                    ) {
+                        target = target.parent;
+                    }
+                    selectedObject = target;
+
+                    if (selectedObject) {
+                        selectedObject.isAutoRotating = false;
+                        previousMousePosition = {
+                            x: event.clientX,
+                            y: event.clientY,
+                        };
+                        document.body.style.cursor = "move";
+                        renderer.domElement.style.pointerEvents = "auto"; // Capture events while dragging
+                    }
+                }
+            }
+
+            function onPointerMove(event) {
+                if (isDraggingObject && selectedObject) {
+                    const deltaMove = {
+                        x: event.clientX - previousMousePosition.x,
+                        y: event.clientY - previousMousePosition.y,
+                    };
+                    const sensitivity = 0.005;
+                    selectedObject.rotateOnWorldAxis(
+                        new THREE.Vector3(0, 1, 0),
+                        deltaMove.x * sensitivity,
+                    );
+                    selectedObject.rotateOnWorldAxis(
+                        new THREE.Vector3(1, 0, 0),
+                        deltaMove.y * sensitivity,
+                    );
+                    previousMousePosition = {
+                        x: event.clientX,
+                        y: event.clientY,
+                    };
+                }
+            }
+
+            function onPointerUp() {
+                if (isDraggingObject) {
+                    isDraggingObject = false;
+                    selectedObject = null;
+                    document.body.style.cursor = "default";
+                }
+            }
+
+            window.addEventListener("pointerdown", onPointerDown);
+            window.addEventListener("pointermove", onPointerMove);
+            window.addEventListener("pointerup", onPointerUp);
+
+            // --- 6. Label Position Update Logic ---
+            const tempV = new THREE.Vector3();
+            const labelOffset3D = new THREE.Vector3(-40, -40, 0); // Adjusted for Lego scale
+
+            function updateLabels() {
+                interactableObjects.forEach((obj) => {
+                    if (obj.labelElement) {
+                        tempV.copy(obj.position);
+                        tempV.add(labelOffset3D);
+                        tempV.project(camera);
+
+                        if (Math.abs(tempV.z) > 1) {
+                            return;
+                        }
+
+                        const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+                        const y = (tempV.y * -0.5 + 0.25) * window.innerHeight;
+
+                        obj.labelElement.style.left = `${x}px`;
+                        obj.labelElement.style.top = `${y}px`;
+                    }
+                });
+            }
+
+            // --- 7. Animation Loop ---
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // CHANGED: Poll for updates from the main manager
+                layoutObjects();
+
+                interactableObjects.forEach((obj) => {
+                    if (obj.isAutoRotating) {
+                        obj.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), 0.01);
+                    }
+                });
+                updateLabels();
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // --- 8. UI & Resize ---
+            window.addEventListener("resize", () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                // Force redraw on resize
+                lastRenderedStep = -1;
+            });
+        </script>
+    </body>
+</html>
