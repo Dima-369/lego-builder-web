@@ -136,7 +136,8 @@
     height: var(--button-size);
     z-index: 10;
     cursor: pointer;
-    top: 37%;
+    top: 50%;
+    transform: translateY(-50%);
     right: 3%;
     border-radius: 50%;
     display: flex;
