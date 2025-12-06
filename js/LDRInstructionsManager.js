@@ -1131,7 +1131,6 @@ LDR.InstructionsManager.prototype.goToStep = function (step, instant) {
     return; // Don't walk when showing preview.
   }
 
-  console.log("Going to " + step + " from " + this.currentStep);
   let self = this;
   this.stepHandler.moveTo(step);
   this.handleStepsWalked(instant);
