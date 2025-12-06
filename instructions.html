@@ -668,6 +668,11 @@
                 function animatePLI() {
                     requestAnimationFrame(animatePLI);
 
+                    // PERFORMANCE FIX:
+                    // If we are currently showing the "Parts Grid" (showParts=true),
+                    // DO NOT render the step preview (PLI) to save GPU.
+                    if (manager && manager.showParts) return;
+
                     if (!pliRenderer || !pliScenes.length) return;
 
                     // Clear the whole canvas
@@ -1070,6 +1075,11 @@
             // --- 7. Animation Loop ---
             function animate() {
                 requestAnimationFrame(animate);
+
+                // PERFORMANCE FIX:
+                // If we are NOT showing parts (i.e. looking at instructions),
+                // DO NOT render this heavy parts grid scene.
+                if (typeof manager !== "undefined" && !manager.showParts) return;
 
                 // CHANGED: Poll for updates from the main manager
                 layoutObjects();

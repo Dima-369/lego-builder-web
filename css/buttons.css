@@ -66,10 +66,6 @@
     position: relative; /* Context for children */
 }
 
-.nav_button:hover {
-    background-color: #ddd;
-}
-
 .nav_button img {
     width: 80%;
     height: 80%;
@@ -204,10 +200,6 @@
     border-radius: 20px;
     background-color: rgba(0, 0, 0, 0.2);
 
-    &:hover {
-        background-color: rgba(0, 0, 0, 0.3);
-    }
-
     img {
         width: 60%;
         height: 60%;
@@ -218,9 +210,6 @@
     background-color: #fff;
     top: auto; /* Unset top */
     bottom: 25%; /* Position nicely on the right side */
-}
-#reset_camera_button:hover {
-    background-color: #ddd;
 }
 #reset_camera_button img {
     width: 50%;
