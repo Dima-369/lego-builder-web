@@ -1,105 +1,84 @@
 "use strict";
 
 LDR.Buttons = function (actions, element, options) {
-  // 1. Close Button (Top Right)
-  if (actions.closeInstructions) {
-    this.closeButton = this.createDiv(
-      "close_button",
-      actions.closeInstructions,
-    );
-    this.closeButton.setAttribute("class", "ui_control");
-    const closeImg = document.createElement("img");
-    closeImg.src = "img/x.svg";
-    closeImg.style.pointerEvents = "none";
-    this.closeButton.appendChild(closeImg);
-    this.closeButton.addEventListener("contextmenu", (e) => e.preventDefault());
-    element.appendChild(this.closeButton);
+  // Bind Actions to Existing Elements
+
+  // 1. Close Button
+  const closeBtn = document.getElementById("close_button");
+  if (closeBtn && actions.closeInstructions) {
+    closeBtn.addEventListener("click", actions.closeInstructions);
   }
 
-  // 2. Reset Camera Button (Top Right)
-  // Pass null for onclick to handle manually for long-press support
-  this.resetCameraButton = this.createDiv("reset_camera_button", null);
-  const resetCameraImg = document.createElement("img");
-  resetCameraImg.src = "img/refresh-cw.svg";
-  // Prevent long-press on image triggering download popup
-  resetCameraImg.style.pointerEvents = "none";
-  this.resetCameraButton.appendChild(resetCameraImg);
-  element.appendChild(this.resetCameraButton);
+  // 2. Reset Camera Button
+  this.resetCameraButton = document.getElementById("reset_camera_button");
+  // Long press logic for Fullscreen
+  if (this.resetCameraButton) {
+    let pressTimer;
+    let longPressed = false;
+    let semaphore = false; // Prevent double firing
 
-  // Prevent context menu on the button itself
-  this.resetCameraButton.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-  });
+    const startPress = () => {
+      longPressed = false;
+      pressTimer = setTimeout(() => {
+        longPressed = true;
+        if (!document.fullscreenElement) {
+          document.documentElement
+            .requestFullscreen()
+            .catch((e) => console.warn(e));
+        } else {
+          document.exitFullscreen();
+        }
+      }, 800); // ms
+    };
 
-  // Long press logic for Fullscreen on Reset Camera Button
-  let pressTimer;
-  let longPressed = false;
-  let semaphore = false; // Prevent double firing on touch devices
+    const cancelPress = () => clearTimeout(pressTimer);
 
-  const startPress = () => {
-    longPressed = false;
-    pressTimer = setTimeout(() => {
-      longPressed = true;
-      if (!document.fullscreenElement) {
-        document.documentElement
-          .requestFullscreen()
-          .catch((e) => console.warn(e));
-      } else {
-        document.exitFullscreen();
-      }
-    }, 800); // ms
-  };
+    this.resetCameraButton.addEventListener("mousedown", startPress);
+    this.resetCameraButton.addEventListener("touchstart", startPress, {
+      passive: true,
+    });
+    this.resetCameraButton.addEventListener("mouseleave", cancelPress);
+    this.resetCameraButton.addEventListener("touchmove", cancelPress);
 
-  const cancelPress = () => clearTimeout(pressTimer);
+    this.resetCameraButton.addEventListener("mouseup", () => {
+      cancelPress();
+      if (!semaphore && !longPressed && actions.resetCameraPosition)
+        actions.resetCameraPosition();
+      semaphore = false;
+    });
 
-  this.resetCameraButton.addEventListener("mousedown", startPress);
-  this.resetCameraButton.addEventListener("touchstart", startPress, {
-    passive: true,
-  });
-  this.resetCameraButton.addEventListener("mouseleave", cancelPress);
-  this.resetCameraButton.addEventListener("touchmove", cancelPress);
+    this.resetCameraButton.addEventListener("touchend", () => {
+      cancelPress();
+      semaphore = true;
+      if (!longPressed && actions.resetCameraPosition)
+        actions.resetCameraPosition();
+    });
+  }
 
-  this.resetCameraButton.addEventListener("mouseup", () => {
-    cancelPress();
-    if (!semaphore && !longPressed && actions.resetCameraPosition)
-      actions.resetCameraPosition();
-    semaphore = false;
-  });
+  // 3. Navigation Buttons
+  const prevBtn = document.getElementById("prev_button");
+  const nextBtn = document.getElementById("next_button");
 
-  this.resetCameraButton.addEventListener("touchend", () => {
-    cancelPress();
-    semaphore = true;
-    if (!longPressed && actions.resetCameraPosition)
-      actions.resetCameraPosition();
-  });
+  this.backButton = prevBtn;
+  this.nextButton = nextBtn;
 
-  // 3. Progress Bar (Center)
-  this.progressBar = this.createDiv("progress_bar_container");
-  this.progressBar.addEventListener("contextmenu", (e) => e.preventDefault());
+  if (prevBtn && actions.prevStep) {
+    prevBtn.addEventListener("click", actions.prevStep);
+  }
+  if (nextBtn && actions.nextStep) {
+    nextBtn.addEventListener("click", actions.nextStep);
+  }
 
-  // Progress Bar Background
-  this.progressBg = this.createDiv("progress_bar_background");
-  this.progressBar.appendChild(this.progressBg);
+  // 4. Progress Bars (Top and Bottom)
+  this.progressBars = [
+    document.getElementById("progress_bar_top"),
+    document.getElementById("progress_bar_bottom"),
+  ].filter((el) => el != null);
 
-  // Progress Line
-  this.progressLine = this.createDiv("progress_line");
-  this.progressBar.appendChild(this.progressLine);
-
-  // Progress Dot
-  this.progressDot = this.createDiv("progress_dot");
-  const progressDotImg = document.createElement("img");
-  progressDotImg.src = "img/brand-lego.svg";
-  progressDotImg.style.pointerEvents = "none";
-  this.progressDot.appendChild(progressDotImg);
-  this.progressBar.appendChild(this.progressDot);
-
-  // Add click listener to jump to step
-  let self = this;
-  let isDragging = false;
-
-  const handleProgress = (e) => {
+  // Common Handler for Progress Bar Interaction
+  const handleProgress = (e, barElement) => {
     if (!actions.clickProgressBar) return;
-    let rect = self.progressBar.getBoundingClientRect();
+    let rect = barElement.getBoundingClientRect();
     let clientX = e.clientX;
     if (e.touches && e.touches.length > 0) {
       clientX = e.touches[0].clientX;
@@ -109,99 +88,92 @@ LDR.Buttons = function (actions, element, options) {
     actions.clickProgressBar(percent);
   };
 
-  const onPointerDown = (e) => {
-    isDragging = true;
-    handleProgress(e);
-    e.preventDefault();
-  };
+  this.progressBars.forEach((bar) => {
+    let isDragging = false;
 
-  const onPointerMove = (e) => {
-    if (isDragging) {
-      handleProgress(e);
-    }
-  };
+    const onPointerDown = (e) => {
+      isDragging = true;
+      handleProgress(e, bar);
+      e.preventDefault();
+    };
 
-  const onPointerUp = () => {
-    isDragging = false;
-  };
+    const onPointerMove = (e) => {
+      if (isDragging) {
+        handleProgress(e, bar);
+      }
+    };
 
-  this.progressBar.addEventListener("mousedown", onPointerDown);
-  this.progressBar.addEventListener("touchstart", onPointerDown, {
-    passive: false,
+    const onPointerUp = () => {
+      isDragging = false;
+    };
+
+    bar.addEventListener("mousedown", onPointerDown);
+    bar.addEventListener("touchstart", onPointerDown, { passive: false });
+
+    // Attach global move/up to window to handle dragging outside the bar
+    window.addEventListener("mousemove", onPointerMove);
+    window.addEventListener("touchmove", onPointerMove, { passive: false });
+    window.addEventListener("mouseup", onPointerUp);
+    window.addEventListener("touchend", onPointerUp);
   });
 
-  window.addEventListener("mousemove", onPointerMove);
-  window.addEventListener("touchmove", onPointerMove, { passive: false });
+  // --- COMPATIBILITY LAYER ---
+  // The InstructionsManager expects to find 'progressDot' and 'progressLine' properties
+  // on this object and set their style. We proxy these to update ALL bars.
 
-  window.addEventListener("mouseup", onPointerUp);
-  window.addEventListener("touchend", onPointerUp);
+  const self = this;
 
-  this.progressBarWrapper = this.createDiv("progress-bar-wrapper");
-  this.progressBarWrapper.appendChild(this.progressBar);
+  // Mock object for progressDot that updates all dots
+  this.progressDot = {
+      style: new Proxy({}, {
+          set: function(target, prop, value) {
+              self.progressBars.forEach(bar => {
+                  const dot = bar.querySelector(".progress_dot");
+                  if(dot) dot.style[prop] = value;
+              });
+              return true;
+          }
+      })
+  };
 
-  // Append the center container to the main element
-  element.appendChild(this.progressBarWrapper);
-
-  // 6. Back Button (Bottom Left)
-  if (actions.prevStep) {
-    this.backButton = this.createDiv("prev_button", actions.prevStep);
-    this.backButton.setAttribute("class", "ui_control");
-    const image = document.createElement("img");
-    image.setAttribute("src", "img/chevron-left.svg");
-    image.style.pointerEvents = "none";
-    this.backButton.appendChild(image);
-    this.backButton.addEventListener("contextmenu", (e) => e.preventDefault());
-    element.appendChild(this.backButton);
-  }
-
-  // 7. Next Button (Bottom Right)
-  if (actions.nextStep) {
-    this.nextButton = this.createDiv("next_button", actions.nextStep);
-    this.nextButton.setAttribute("class", "ui_control");
-    const image = document.createElement("img");
-    image.setAttribute("src", "img/chevron-right.svg");
-    image.style.pointerEvents = "none";
-    this.nextButton.appendChild(image);
-    this.nextButton.addEventListener("contextmenu", (e) => e.preventDefault());
-    element.appendChild(this.nextButton);
-  }
+  // Mock object for progressLine that updates all lines
+  this.progressLine = {
+      style: new Proxy({}, {
+          set: function(target, prop, value) {
+              self.progressBars.forEach(bar => {
+                  const line = bar.querySelector(".progress_line");
+                  if(line) line.style[prop] = value;
+              });
+              return true;
+          }
+      })
+  };
 };
 
 LDR.Buttons.prototype.hideElementsAccordingToOptions = function () {};
 
-// Primitive helper methods for creating elements for buttons:
-LDR.Buttons.prototype.createDiv = function (id, onclick, classA) {
-  return this.create("div", id, onclick, classA);
-};
-LDR.Buttons.prototype.create = function (type, id, onclick, classA) {
-  let ret = document.createElement(type);
-  ret.setAttribute("id", id);
-  if (onclick) {
-    let semaphore = false;
-    ret.addEventListener("mouseup", (e) => {
-      if (!semaphore) {
-        onclick(e);
-      }
-      semaphore = false;
-    });
-    ret.addEventListener("touchend", (e) => {
-      semaphore = true;
-      onclick(e);
-    });
-  }
-  if (classA) {
-    ret.setAttribute("class", classA);
-  }
-  return ret;
-};
-
 // Functions for hiding next/prev buttons:
 LDR.Buttons.prototype.setVisibility = function (showPrev, showNext) {
-  if (this.backButton)
-    this.backButton.style.visibility = showPrev ? "visible" : "hidden";
-  if (this.nextButton)
-    this.nextButton.style.visibility = showNext ? "visible" : "hidden";
+  if (this.backButton) {
+      this.backButton.classList.toggle("hidden", !showPrev);
+  }
+  if (this.nextButton) {
+      this.nextButton.classList.toggle("hidden", !showNext);
+  }
 };
-LDR.Buttons.prototype.setShownStep = function (step) {
-  if (this.stepInput) this.stepInput.value = "" + step;
+
+// This needs to update BOTH progress bars (top and bottom)
+LDR.Buttons.prototype.updateProgressBar = function (pct) {
+  this.progressBars.forEach((bar) => {
+    const dot = bar.querySelector(".progress_dot");
+    const line = bar.querySelector(".progress_line");
+
+    if (dot) dot.style.left = pct + "%";
+    if (line) {
+      line.style.background = `linear-gradient(to right, #fdc700 ${pct}%, white ${pct}%)`;
+    }
+  });
 };
+
+// Replaces the old direct style manipulation in InstructionsManager
+// Make sure to call this method from InstructionsManager instead of setting styles directly there.

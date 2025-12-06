@@ -56,6 +56,50 @@
         <script src="js/LDRInstructionsManager.js"></script>
         <script src="js/LDCadGenerator.js"></script>
 
+        <!-- --- UI Structure --- -->
+
+        <!-- Top Panel: Progress Bar for Mobile -->
+        <div id="top_panel">
+            <div id="progress_bar_top" class="progress_bar_container">
+                <div class="progress_bar_background"></div>
+                <div class="progress_line"></div>
+                <div class="progress_dot">
+                    <img src="img/brand-lego.svg" alt="progress" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Buttons -->
+        <div id="close_button" onclick="window.location.href = 'index.html'">
+            <img src="img/x.svg" alt="close" />
+        </div>
+
+        <div id="reset_camera_button_wrapper">
+            <div id="reset_camera_button">
+                <img src="img/refresh-cw.svg" alt="reset camera" />
+            </div>
+        </div>
+
+        <!-- Bottom Panel: Navigation & Desktop Progress -->
+        <div id="bottom_panel">
+            <div id="prev_button" class="nav_button">
+                <img src="img/chevron-left.svg" alt="previous" />
+            </div>
+
+            <div id="progress_bar_bottom" class="progress_bar_container">
+                <div class="progress_bar_background"></div>
+                <div class="progress_line"></div>
+                <div class="progress_dot">
+                    <img src="img/brand-lego.svg" alt="progress" />
+                </div>
+            </div>
+
+            <div id="next_button" class="nav_button">
+                <img src="img/chevron-right.svg" alt="next" />
+            </div>
+        </div>
+
+        <!-- --- 3D Canvas Area --- -->
         <div id="main_canvas_holder">
             <canvas id="main_canvas"></canvas>
             <div id="instructions_decorations">

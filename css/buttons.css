@@ -2,169 +2,100 @@
     --button-size: calc(max(8vh, 8vw));
 }
 
-.top_button,
-#next_button_large,
-#zoom_in_button,
-#zoom_out_button,
-#zoom_in_button_large,
-#zoom_out_button_large,
-#done_button {
-    position: relative;
-    cursor: pointer;
+/* Fixed bottom bar for navigation */
+#bottom_panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    gap: 70px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3%;
+    box-sizing: border-box;
+    z-index: 20;
+    pointer-events: none; /* Allows clicks to pass through empty space */
 }
 
-#progress-bar-wrapper {
-    position: absolute;
-    /* use same offset as prev/next buttons */
-    bottom: 3%;
-    height: var(--button-size);
+/* Fixed top bar for mobile progress bar */
+#top_panel {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 60px; /* Sufficient for progress bar */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 19; /* Below overlay menus */
+    pointer-events: none;
+}
+
+/* Allow clicking on actual controls */
+.nav_button,
+.progress_bar_container {
+    pointer-events: auto;
+}
+
+/* --- Buttons --- */
+
+#reset_camera_button_wrapper {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-#progress_bar_container {
-    position: relative;
-    width: 60vw;
-    max-width: calc(100vw - 2 * var(--button-size) - 50px);
-    height: 40px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    z-index: 10;
-}
-
-@media screen and (max-width: 640px) {
-    #progress-bar-wrapper {
-        bottom: auto;
-        top: 3%;
-        left: 6%;
-        justify-content: flex-start;
-        width: fit-content;
-    }
-
-    #progress_bar_container {
-        max-width: calc(max(100vw, 100vh) - (2 * var(--button-size)));
-    }
-}
-
-#next_button,
-#prev_button,
-#done_button {
+.nav_button {
     user-select: none;
-    position: absolute;
     cursor: pointer;
     background-color: #fff;
     border-radius: 20px;
-    bottom: 0;
     width: var(--button-size);
     height: var(--button-size);
-    z-index: 10;
     box-shadow: 0 4px 2px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background-color 0.1s;
+    position: relative; /* Context for children */
 }
 
-#close_button {
-    user-select: none;
-    position: absolute;
-    cursor: pointer;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 20px;
-    width: var(--button-size);
-    height: var(--button-size);
-    z-index: 10;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    img {
-        width: 65%;
-        height: 65%;
-    }
-
-    &:hover {
-        background-color: rgba(0, 0, 0, 0.3);
-    }
-}
-
-#prev_button {
-    left: 3%;
-    bottom: 3%;
-}
-
-#close_button {
-    top: 3%;
-    right: 3%;
-}
-
-#next_button:hover,
-#prev_button:hover,
-#done_button:hover,
-#reset_camera_button:hover {
+.nav_button:hover {
     background-color: #ddd;
 }
 
-#prev_button img,
-#next_button img,
-#done_button img {
+.nav_button img {
     width: 80%;
     height: 80%;
+    pointer-events: none;
 }
 
-#next_button,
-#done_button {
-    right: 3%;
-    bottom: 3%;
+/* Hide disabled buttons (logic handled in JS) */
+.nav_button.hidden {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
 }
 
-.show-parts {
-    #reset_camera_button {
-        display: none;
-    }
-}
+/* --- Progress Bar --- */
 
-#reset_camera_button {
-    position: absolute;
-    background-color: #fff;
-    width: var(--button-size);
-    height: var(--button-size);
-    z-index: 10;
+/* Common styling for both top and bottom progress bars */
+.progress_bar_container {
+    position: relative;
     cursor: pointer;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 3%;
-    border-radius: 50%;
     display: flex;
-    justify-content: center;
     align-items: center;
-
-    img {
-        width: 50%;
-        height: 50%;
-    }
+    /* Flex grow ensures it fills space between buttons in desktop mode */
+    flex-grow: 1;
 }
 
-/* Remove Zoom Buttons */
-#zoom_in_button,
-#zoom_out_button,
-#zoom_in_button_large,
-#zoom_out_button_large {
-    display: none !important;
-}
-
-/* UI Elements moved from Top to Bottom Center */
-#stepToContainer,
-#numberOfSteps {
-    display: none;
-}
-
-#progress_bar_background {
+.progress_bar_background {
     position: absolute;
     top: 50%;
     left: -10px;
@@ -176,17 +107,20 @@
     z-index: 0;
 }
 
-#progress_line {
-    position: relative;
-    z-index: 1;
-    width: 100%;
+.progress_line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%; /* JS sets gradient width */
     height: calc(max(3vh, 3vw));
-    background-color: #fff;
     border-radius: 20px;
+    z-index: 1;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    /* Background is set via inline style (gradient) in JS */
 }
 
-#progress_dot {
+.progress_dot {
     position: absolute;
     z-index: 2;
     width: calc(max(6vw, 6vh));
@@ -194,105 +128,115 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    /* yellow400 */
-    background-color: #fdc700;
+    background-color: #fdc700; /* Lego Yellow */
     border-radius: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    left: 0%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-    transition: left 0.1s ease-out;
-    pointer-events: none; /* Let clicks pass through to container */
+    left: 0%; /* JS updates this */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
 
-    img {
-        width: 90%;
-        height: 90%;
+.progress_dot img {
+    width: 70%;
+    height: 70%;
+}
+
+/* --- Responsive Logic --- */
+
+/* Desktop: Hide Top Bar, Show Bottom Progress */
+@media screen and (min-width: 641px) {
+    #top_panel {
+        display: none;
     }
 }
 
-/* Hide Top Buttons Container */
-#top_buttons {
-    display: none;
+/* Mobile: Hide Bottom Progress, Show Top Bar */
+@media screen and (max-width: 640px) {
+    #bottom_panel {
+        /* On mobile, buttons stick to edges, no middle gap needed */
+        justify-content: space-between;
+    }
+
+    /* Hide the progress bar that is inside the bottom panel */
+    #bottom_panel .progress_bar_container {
+        display: none;
+    }
+
+    #top_panel {
+        display: flex;
+        top: 1.5%;
+        padding-left: 6%;
+        padding-right: 3%;
+        min-width: 50vw;
+        max-width: calc(100% - (var(--button-size) * 3));
+    }
+
+    /* Ensure top progress bar has width */
+    #top_panel .progress_bar_container {
+        width: 80%;
+        margin: 0;
+    }
 }
 
-/* Edit/Options buttons if they exist, move to bottom center */
-#editButton,
-#optionsButton {
-    display: inline-block;
-    width: 60px;
-    height: 60px;
-    cursor: pointer;
-    margin: 0 10px;
-}
+/* --- Floating Buttons (Top Right) --- */
 
-#to_top {
-    display: none;
+#close_button,
+#reset_camera_button {
     position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 1000;
-    background-color: black;
-    opacity: 0.7;
-    border-radius: 10px;
-}
-#to_top svg {
-    width: 10vw;
-    height: 10vw;
-    stroke: white;
-    opacity: 1;
-}
-#to_top svg polygon,
-.options_footer svg polygon {
-    stroke-width: 4;
-}
-#editButton svg,
-#optionsButton svg {
-    stroke-width: 1;
-    fill: none;
-    width: 100%;
-    height: 100%;
+    right: 3%;
+    width: var(--button-size);
+    height: var(--button-size);
+    z-index: 30;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* SVG Styling */
-svg {
-    position: relative;
-    pointer-events: none;
-}
-svg:hover {
-    opacity: 1;
+#reset_camera_button {
+    background-color: #fff;
+    border-radius: 50%;
 }
 
-/*
- Only for preview:
- */
-#preview_border {
-    position: relative;
-    top: 0;
-    background-color: white;
-}
-#preview_border #prev_button,
-#preview_parent #prev_button {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    visibility: hidden;
-}
-.preview svg {
-    display: block;
-    width: 100%;
+#close_button {
+    top: 3%;
+    border-radius: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    img {
+        width: 60%;
+        height: 60%;
+    }
 }
 
-line,
-polygon,
-rect,
-polyline,
-path,
-circle,
-ellipse {
-    stroke-width: 2;
-    stroke-linecap: round;
+#close_button #reset_camera_button {
+    background-color: #fff;
+    top: auto; /* Unset top */
+    bottom: 25%; /* Position nicely on the right side */
+}
+#reset_camera_button:hover {
+    background-color: #ddd;
+}
+#reset_camera_button img {
+    width: 50%;
+    height: 50%;
 }
 
-#rotator path {
-    stroke-width: 6;
+/* --- Misc --- */
+.show-parts #reset_camera_button {
+    display: none !important;
+}
+
+/* Hide unused elements from original codebase */
+#zoom_in_button,
+#zoom_out_button,
+#stepToContainer,
+#numberOfSteps,
+#top_buttons {
+    display: none !important;
 }
