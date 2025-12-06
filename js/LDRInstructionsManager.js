@@ -472,16 +472,23 @@ LDR.InstructionsManager.prototype.render = function () {
   }
 
   // Toggle Reset Camera Button based on whether camera is in default position
-  if (this.ldrButtons && this.ldrButtons.resetCameraButton && this.defaultCameraPos) {
+  if (
+    this.ldrButtons &&
+    this.ldrButtons.resetCameraButton &&
+    this.defaultCameraPos
+  ) {
     const EPS_POS = 0.5; // Tolerance for position floating point comparison
     const EPS_ZOOM = 0.005; // Tolerance for zoom
 
-    const isDefaultPos = this.camera.position.distanceTo(this.defaultCameraPos) < EPS_POS;
+    const isDefaultPos =
+      this.camera.position.distanceTo(this.defaultCameraPos) < EPS_POS;
     const isDefaultTarget = this.controls.target.lengthSq() < EPS_POS; // Target should be (0,0,0)
-    const isDefaultZoom = Math.abs(this.camera.zoom - this.defaultZoom) < EPS_ZOOM;
+    const isDefaultZoom =
+      Math.abs(this.camera.zoom - this.defaultZoom) < EPS_ZOOM;
 
     // If at default, hide (display: none), otherwise remove inline style (allow CSS to show it)
-    this.ldrButtons.resetCameraButton.style.display = (isDefaultPos && isDefaultTarget && isDefaultZoom) ? 'none' : '';
+    this.ldrButtons.resetCameraButton.style.display =
+      isDefaultPos && isDefaultTarget && isDefaultZoom ? "none" : "";
   }
 };
 
@@ -802,7 +809,7 @@ LDR.InstructionsManager.prototype.updateViewPort = function (overwriteSize) {
   let modelLift = H * 0.06;
 
   this.camera.clearViewOffset();
-  this.camera.setViewOffset(W, H, -dx / 2, (-dy / 2) + modelLift, W, H);
+  this.camera.setViewOffset(W, H, -dx / 2, -dy / 2 + modelLift, W, H);
   this.camera.updateProjectionMatrix();
   this.controls.update();
 };
@@ -811,7 +818,7 @@ LDR.InstructionsManager.prototype.realignModel = function (
   stepDiff,
   onRotated,
   onDone,
-  instant
+  instant,
 ) {
   let self = this;
   let oldRotationMatrix = this.currentRotationMatrix;
@@ -875,6 +882,50 @@ LDR.InstructionsManager.prototype.realignModel = function (
       this.currentRotationMatrix,
       useAccumulatedBounds,
     );
+
+  // Check if specific rotation rules exist for this model
+  if (LDR.ModelRotations && LDR.ModelRotations[this.modelID]) {
+    const rules = LDR.ModelRotations[this.modelID];
+
+    // Get current step number
+    const visibleStepNumber = this.stepHandler.getCurrentStepIndex();
+
+    let extraRotation = null;
+
+    if (
+      rules.stepsRotated90 &&
+      rules.stepsRotated90.includes(visibleStepNumber)
+    ) {
+      extraRotation = new THREE.Matrix4().makeRotationY(Math.PI / 2);
+    } else if (
+      rules.stepsRotated180 &&
+      rules.stepsRotated180.includes(visibleStepNumber)
+    ) {
+      extraRotation = new THREE.Matrix4().makeRotationY(Math.PI);
+    } else if (
+      rules.stepsRotated270 &&
+      rules.stepsRotated270.includes(visibleStepNumber)
+    ) {
+      extraRotation = new THREE.Matrix4().makeRotationY((3 * Math.PI) / 2);
+    }
+
+    if (extraRotation) {
+      // 1. Apply the rotation to the matrix
+      this.currentRotationMatrix.multiply(extraRotation);
+
+      // 2. RECALCULATE CENTER POSITION
+      // Instead of rotating the old position vector, we take the raw bounding box center,
+      // transform it by our NEW rotation matrix, and negate it.
+      // This guarantees the model is mathematically centered at (0,0,0) regardless of rotation.
+
+      let center = new THREE.Vector3();
+      // 'b' is the bounding box variable defined earlier in this function (around line 515)
+      b.getCenter(center);
+
+      center.applyMatrix4(this.currentRotationMatrix);
+      newPosition.copy(center).negate();
+    }
+  }
 
   // Find actual screen bounds:
   this.baseObject.setRotationFromMatrix(this.currentRotationMatrix);
@@ -1066,10 +1117,13 @@ LDR.InstructionsManager.prototype.handleStepsWalked = function (instant) {
   this.updateUIComponents(false);
 
   // Update local storage:
-  localStorage.setItem("lego_state_" + this.modelID, JSON.stringify({
+  localStorage.setItem(
+    "lego_state_" + this.modelID,
+    JSON.stringify({
       step: this.currentStep,
-      showParts: this.showParts
-  }));
+      showParts: this.showParts,
+    }),
+  );
 };
 
 LDR.InstructionsManager.prototype.goToStep = function (step, instant) {
@@ -1139,7 +1193,6 @@ LDR.InstructionsManager.prototype.prevStep = function () {
     () => self.handleStepsWalked(),
   );
 };
-
 
 /*
   Icon: {x, y, width, height, mult, key, partID, c, desc, inlined}
@@ -1265,7 +1318,6 @@ LDR.InstructionsManager.prototype.onPLIMove = function (e) {
 LDR.InstructionsManager.prototype.hidePliPreview = function () {
   this.pliPreviewer.hidePliPreview();
 };
-
 
 /*
   Assumes LDR.Options in global scope.

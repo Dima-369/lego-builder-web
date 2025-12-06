@@ -185,6 +185,19 @@
                 let modelID = urlParams.get("model") || "30477";
                 var model = "models/" + modelID + ".ldr";
 
+                // Dynamically load the rotation JS file for this model
+                const script = document.createElement("script");
+                script.src = `models/${modelID}.js`;
+                script.onload = () => {
+                    console.log(`Loaded rotations for ${modelID}`);
+                };
+                script.onerror = () => {
+                    console.log(
+                        `No specific rotation file found for ${modelID}`,
+                    );
+                };
+                document.head.appendChild(script);
+
                 // 2. check LocalStorage for previous state
                 let storageKey = "lego_state_" + modelID;
                 let storedState = {};
@@ -217,7 +230,11 @@
 
                 // 5. Update URL if params were missing (fill in the blanks)
                 const baseURL = "instructions.html?model=" + modelID + "&step=";
-                if (!stepParam || showPartsParam === null || !urlParams.get("model")) {
+                if (
+                    !stepParam ||
+                    showPartsParam === null ||
+                    !urlParams.get("model")
+                ) {
                     let newUrl = baseURL + step + "&showParts=" + showParts;
                     window.history.replaceState({}, "", newUrl);
                 }
@@ -821,7 +838,10 @@
                     const row = Math.floor(i / cols);
 
                     // Calculate number of items in this specific row to center it
-                    const itemsInCurrentRow = Math.min(cols, count - (row * cols));
+                    const itemsInCurrentRow = Math.min(
+                        cols,
+                        count - row * cols,
+                    );
                     const actualRowWidth = (itemsInCurrentRow - 1) * SPACING;
 
                     // xPos: Center based on the actual width of this row
@@ -849,7 +869,8 @@
                 // Calculate bounds including object size (SPACING) and a safety margin (1.1)
                 const marginFactor = 1.1;
                 const totalContentWidth = (gridWidth + SPACING) * marginFactor;
-                const totalContentHeight = (gridHeight + SPACING) * marginFactor;
+                const totalContentHeight =
+                    (gridHeight + SPACING) * marginFactor;
 
                 const visibleHeightFraction = safeHeight / window.innerHeight;
                 const distV =
@@ -922,9 +943,11 @@
 
                     if (selectedObject.userData.spinner) {
                         // Rotate the spinner (local Y) based on X movement
-                        selectedObject.userData.spinner.rotation.y += deltaMove.x * sensitivity;
+                        selectedObject.userData.spinner.rotation.y +=
+                            deltaMove.x * sensitivity;
                         // Rotate pivot (local X) based on Y movement (tilt)
-                        selectedObject.userData.pivot.rotation.x += deltaMove.y * sensitivity;
+                        selectedObject.userData.pivot.rotation.x +=
+                            deltaMove.y * sensitivity;
                     } else {
                         // Fallback logic
                         selectedObject.rotateOnWorldAxis(
@@ -979,8 +1002,20 @@
                         const labelWidth = 60; // Approximate width of label
                         const labelHeight = 40; // Approximate height of label
 
-                        x = Math.max(padding, Math.min(x, window.innerWidth - labelWidth - padding));
-                        y = Math.max(padding, Math.min(y, window.innerHeight - labelHeight - padding));
+                        x = Math.max(
+                            padding,
+                            Math.min(
+                                x,
+                                window.innerWidth - labelWidth - padding,
+                            ),
+                        );
+                        y = Math.max(
+                            padding,
+                            Math.min(
+                                y,
+                                window.innerHeight - labelHeight - padding,
+                            ),
+                        );
 
                         obj.labelElement.style.left = `${x}px`;
                         obj.labelElement.style.top = `${y}px`;
@@ -1000,7 +1035,10 @@
                         if (obj.userData.spinner) {
                             obj.userData.spinner.rotation.y += 0.01;
                         } else {
-                            obj.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), 0.01);
+                            obj.rotateOnWorldAxis(
+                                new THREE.Vector3(0, 1, 0),
+                                0.01,
+                            );
                         }
                     }
                 });
