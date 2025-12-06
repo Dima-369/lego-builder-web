@@ -40,10 +40,10 @@ LDR.InstructionsManager = function (
   this.currentStep = 1; // Shown current step.
   this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000000); // Orthographics for LEGO
 
-  let pixelRatio = window.devicePixelRatio || 1;
+  // Performance: Cap pixel ratio to 2 to prevent GPU overload on high-DPI mobile screens
+  let pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
   this.canvas = document.getElementById("main_canvas");
   this.renderer = new THREE.WebGLRenderer({
-    antialias: true,
     canvas: this.canvas,
     logarithmicDepthBuffer: false,
     alpha: true,
@@ -51,7 +51,6 @@ LDR.InstructionsManager = function (
   this.renderer.setPixelRatio(pixelRatio);
   this.secondaryCanvas = document.getElementById("secondary_canvas");
   this.secondaryRenderer = new THREE.WebGLRenderer({
-    antialias: true,
     canvas: this.secondaryCanvas,
     alpha: true,
   });

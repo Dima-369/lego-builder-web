@@ -324,9 +324,11 @@
                     pliRenderer = new THREE.WebGLRenderer({
                         canvas: pliCanvas,
                         alpha: true,
-                        antialias: true,
                     });
-                    pliRenderer.setPixelRatio(window.devicePixelRatio);
+                    // Performance Fix: Cap Pixel Ratio for the PLI renderer
+                    pliRenderer.setPixelRatio(
+                        Math.min(window.devicePixelRatio, 2),
+                    );
                     pliRenderer.setScissorTest(true); // ENABLE SCISSOR TEST
 
                     // Input Routing: Determine which virtual scene gets mouse events
@@ -694,7 +696,11 @@
                 10000, // Increased Far plane for LDraw units
             );
 
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            // Performance: Cap pixel ratio and hint power preference
+            const renderer = new THREE.WebGLRenderer({
+                powerPreference: "high-performance",
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.domElement.id = "parts-threejs-canvas";
             document.body.appendChild(renderer.domElement);
@@ -707,10 +713,28 @@
             function clearScene() {
                 interactableObjects.forEach((obj) => {
                     scene.remove(obj);
+                    // Memory Management: Dispose of geometries and materials to prevent memory leaks
+                    obj.traverse((child) => {
+                        if (child.isMesh) {
+                            if (child.geometry) {
+                                child.geometry.dispose();
+                            }
+                            if (child.material) {
+                                if (Array.isArray(child.material)) {
+                                    child.material.forEach((m) => m.dispose());
+                                } else {
+                                    child.material.dispose();
+                                }
+                            }
+                        }
+                    });
+
                     // Standard cleanup
                     if (obj.labelElement) obj.labelElement.remove();
                 });
                 interactableObjects = [];
+                // Clear renderer caches
+                renderer.renderLists.dispose();
             }
 
             function createLabel(text) {

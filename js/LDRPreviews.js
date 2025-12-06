@@ -33,7 +33,6 @@ LDR.Previews = function (options, optionsEle) {
 
   this.renderer = new THREE.WebGLRenderer({
     canvas: this.canvas,
-    antialias: true,
   });
   this.renderer.setPixelRatio(window.devicePixelRatio);
   this.renderer.setSize(this.w, this.h);
@@ -259,7 +258,7 @@ LDR.Previews.prototype.createBigPreview = function () {
   holder.appendChild(canvas);
 
   // Set up renderer:
-  let renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
+  let renderer = new THREE.WebGLRenderer({ canvas: canvas });
   renderer.setPixelRatio(window.devicePixelRatio);
 
   let shownBaseObject;
