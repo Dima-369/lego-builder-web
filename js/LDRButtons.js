@@ -55,19 +55,63 @@ LDR.Buttons = function (actions, element, options) {
     });
   }
 
-  // 3. Navigation Buttons
+  // ============================================================
+  // 3. Navigation Buttons (IMPROVED FOR MOBILE)
+  // ============================================================
   const prevBtn = document.getElementById("prev_button");
   const nextBtn = document.getElementById("next_button");
 
   this.backButton = prevBtn;
   this.nextButton = nextBtn;
 
-  if (prevBtn && actions.prevStep) {
-    prevBtn.addEventListener("click", actions.prevStep);
-  }
-  if (nextBtn && actions.nextStep) {
-    nextBtn.addEventListener("click", actions.nextStep);
-  }
+  /**
+   * Helper to handle taps that allows for slight finger wiggling
+   * and prevents ghost clicks.
+   */
+  const bindResponsiveButton = (btn, action) => {
+    if (!btn || !action) return;
+
+    let startX, startY;
+    let isTouchAction = false;
+
+    // 1. Touch Start: Record position
+    btn.addEventListener("touchstart", (e) => {
+        isTouchAction = true;
+        const t = e.changedTouches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        // Optional: Add visual feedback class here if CSS :active isn't enough
+    }, { passive: true });
+
+    // 2. Touch End: Check if finger stayed within "Tap" tolerance
+    btn.addEventListener("touchend", (e) => {
+        const t = e.changedTouches[0];
+        const diffX = Math.abs(t.clientX - startX);
+        const diffY = Math.abs(t.clientY - startY);
+
+        // Allow 30px of wiggle room (generous for mobile thumbs)
+        if (diffX < 30 && diffY < 30) {
+            e.preventDefault(); // Prevent generation of Mouse events
+            action();
+        }
+
+        // Reset flag after a short delay to allow Mouse events to work again if needed
+        setTimeout(() => { isTouchAction = false; }, 500);
+    });
+
+    // 3. Click: Fallback for Desktop Mouse users
+    btn.addEventListener("click", (e) => {
+        // If this triggered via touch already, ignore the ghost click
+        if (isTouchAction) {
+            e.stopImmediatePropagation();
+            return;
+        }
+        action();
+    });
+  };
+
+  bindResponsiveButton(prevBtn, actions.prevStep);
+  bindResponsiveButton(nextBtn, actions.nextStep);
 
   // 4. Progress Bars (Top and Bottom)
   this.progressBars = [
