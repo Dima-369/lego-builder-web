@@ -664,54 +664,6 @@
                         pliCanvas.style.height || pliCanvas.height + "px";
                 };
 
-                // 5. Render Loop
-                function animatePLI() {
-                    requestAnimationFrame(animatePLI);
-
-                    // PERFORMANCE FIX:
-                    // If we are currently showing the "Parts Grid" (showParts=true),
-                    // DO NOT render the step preview (PLI) to save GPU.
-                    if (manager && manager.showParts) return;
-
-                    if (!pliRenderer || !pliScenes.length) return;
-
-                    // Clear the whole canvas
-                    pliRenderer.setScissorTest(false);
-                    pliRenderer.clear();
-                    pliRenderer.setScissorTest(true);
-
-                    const canvasHeight = pliCanvas.height; // Physical height
-
-                    pliScenes.forEach((s) => {
-                        // Auto Rotate logic
-                        if (!s.isManual && s.mesh) {
-                            s.mesh.rotation.y += 0.005;
-                        }
-
-                        s.controls.update();
-
-                        // SCISSOR LOGIC:
-                        // ThreeJS scissor coordinates are (x, y, width, height)
-                        // But 'y' starts from the BOTTOM, whereas our layout 'y' starts from TOP.
-                        // Also need to handle devicePixelRatio if PackPlis doesn't account for it in outputs
-                        // (Note: PackPlis usually outputs CSS pixels, Renderer expects Physical pixels)
-
-                        const pixelRatio = window.devicePixelRatio;
-                        const x = s.rect.x * pixelRatio;
-                        const w = s.rect.w * pixelRatio;
-                        const h = s.rect.h * pixelRatio;
-                        // Flip Y axis for WebGL
-                        const y = pliCanvas.height - s.rect.y * pixelRatio - h;
-
-                        pliRenderer.setViewport(x, y, w, h);
-                        pliRenderer.setScissor(x, y, w, h);
-
-                        pliRenderer.render(s.scene, s.camera);
-                    });
-                }
-
-                animatePLI();
-
                 // Initial Trigger
                 manager.onWindowResize();
             }
@@ -1079,7 +1031,8 @@
                 // PERFORMANCE FIX:
                 // If we are NOT showing parts (i.e. looking at instructions),
                 // DO NOT render this heavy parts grid scene.
-                if (typeof manager !== "undefined" && !manager.showParts) return;
+                if (typeof manager !== "undefined" && !manager.showParts)
+                    return;
 
                 // CHANGED: Poll for updates from the main manager
                 layoutObjects();
