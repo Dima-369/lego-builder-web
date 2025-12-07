@@ -40,8 +40,9 @@ LDR.InstructionsManager = function (
   this.currentStep = 1; // Shown current step.
   this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000000); // Orthographics for LEGO
 
-  // Performance: Cap pixel ratio to 2 to prevent GPU overload on high-DPI mobile screens
-  let pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+  
+  // cap pixel ratio to prevent GPU overload on high-DPI mobile screens
+  const pixelRatio = 1;
   this.canvas = document.getElementById("main_canvas");
   this.renderer = new THREE.WebGLRenderer({
     canvas: this.canvas,

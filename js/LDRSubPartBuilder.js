@@ -50,7 +50,7 @@ LDR.SubPartBuilder = function (
   this.camera.lookAt(new THREE.Vector3());
   this.camera.updateProjectionMatrix();
   this.renderer = new THREE.WebGLRenderer();
-  this.renderer.setPixelRatio(window.devicePixelRatio);
+  this.renderer.setPixelRatio(1);
   this.renderer.setSize(LDR.ICON_SIZE, LDR.ICON_SIZE);
   this.render = function () {
     let v = axesHelper.visible;

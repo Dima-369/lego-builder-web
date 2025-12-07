@@ -55,12 +55,12 @@
                 render() {
                     return html`
                         <a
-                            class="border border-gray-300 rounded-lg p-4 bg-white flex flex-col hover:shadow-lg transition-shadow h-full"
+                            class="border border-gray-300 rounded-lg bg-white flex flex-col hover:shadow-lg transition-shadow h-full"
                             href="${this.finalHref}"
                         >
                             <img src="${this.imgSrc}" class="w-full h-auto" />
                             <h2
-                                class="mt-2 text-center text-xl text-wrap break-all"
+                                class="mt-2 text-center text-xl text-wrap break-all pb-3"
                             >
                                 ${this.title}
                             </h2>
@@ -73,7 +73,7 @@
     </head>
 
     <body class="p-6 bg-gray-100">
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
             <lego-build
                 model="30477"
                 title="Chamäleon (30477)"
@@ -85,6 +85,11 @@
                 imgSrc="img/sets/30477-alt-dragster.png"
             ></lego-build>
             <lego-build
+                model="31109"
+                title="Piratenschiff (31109)"
+                imgSrc="img/sets/31109.jpg"
+            ></lego-build>
+            <lego-build
                 model="42132"
                 title="Motorrad (42132)"
                 imgSrc="img/sets/42132.png"
@@ -93,11 +98,6 @@
                 model="42132-alt"
                 title="Motorrad (42132)"
                 imgSrc="img/sets/42132-alt.png"
-            ></lego-build>
-            <lego-build
-                model="31109"
-                title="Piratenschiff (31109)"
-                imgSrc="img/sets/31109.jpg"
             ></lego-build>
             <lego-build
                 model="42133-1-teleskoplader"

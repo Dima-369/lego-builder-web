@@ -34,7 +34,7 @@ LDR.Previews = function (options, optionsEle) {
   this.renderer = new THREE.WebGLRenderer({
     canvas: this.canvas,
   });
-  this.renderer.setPixelRatio(window.devicePixelRatio);
+  this.renderer.setPixelRatio(1);
   this.renderer.setSize(this.w, this.h);
 
   this.camera = new THREE.OrthographicCamera(
@@ -259,7 +259,7 @@ LDR.Previews.prototype.createBigPreview = function () {
 
   // Set up renderer:
   let renderer = new THREE.WebGLRenderer({ canvas: canvas });
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setPixelRatio(1);
 
   let shownBaseObject;
   this.pliPreviewer = new LDR.PliPreviewer("no_model", canvas, renderer); // Has own renderer, camera, and scene.

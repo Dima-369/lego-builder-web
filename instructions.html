@@ -323,14 +323,11 @@
 
                     pliRenderer = new THREE.WebGLRenderer({
                         canvas: pliCanvas,
-                        alpha: true,
-                    });
-                    // Performance Fix: Cap Pixel Ratio for the PLI renderer
-                    pliRenderer.setPixelRatio(
-                        Math.min(window.devicePixelRatio, 2),
-                    );
-                    pliRenderer.setScissorTest(true); // ENABLE SCISSOR TEST
-
+                          alpha: true,
+                      });
+                      pliRenderer.setPixelRatio(1);
+                      pliRenderer.setScissorTest(true); // ENABLE SCISSOR TEST
+  
                     // Input Routing: Determine which virtual scene gets mouse events
                     function updateControls(event) {
                         if (!pliScenes.length) return;
@@ -698,11 +695,11 @@
 
             // Performance: Cap pixel ratio and hint power preference
             const renderer = new THREE.WebGLRenderer({
-                powerPreference: "high-performance",
-            });
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.domElement.id = "parts-threejs-canvas";
+                  powerPreference: "high-performance",
+              });
+              renderer.setPixelRatio(1);
+              renderer.setSize(window.innerWidth, window.innerHeight);
+              renderer.domElement.id = "parts-threejs-canvas";
             document.body.appendChild(renderer.domElement);
 
             // --- 4. Object Management ---

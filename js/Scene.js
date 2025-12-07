@@ -20,7 +20,7 @@ ENV.Scene = function (canvas, color) {
 
   // Set up renderer:
   this.renderer = new THREE.WebGLRenderer({ canvas: canvas });
-  this.renderer.setPixelRatio(window.devicePixelRatio);
+  this.renderer.setPixelRatio(1);
   this.renderer.shadowMap.enabled = true;
   this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Default is PCFShadowMap
   this.renderer.shadowMapSoft = true;
